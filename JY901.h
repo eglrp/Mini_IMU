@@ -138,11 +138,23 @@ public:
 	struct SPress 		stcPress;
 	struct SLonLat 		stcLonLat;
 	struct SGPSV 		stcGPSV;
+	bool isend = false;
 	
     CJY901(){
 		std::cout << "after initial jy901"<< std::endl;
 	}
     void CopeSerialData(char ucData[],unsigned short usLength);
+	bool getisend()
+	{
+        if(isend)
+		{
+			isend=false;
+			return true;
+		}else{
+			return false;
+		}
+
+	}
 };
 
 
@@ -167,7 +179,7 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 		}
 		switch(chrTemp[1])
 		{
-			case 0x50:	memcpy(&stcTime,&chrTemp[2],8);break;
+			case 0x50:	memcpy(&stcTime,&chrTemp[2],8);isend=true;break;
 			case 0x51:	memcpy(&stcAcc,&chrTemp[2],8);break;
 			case 0x52:	memcpy(&stcGyro,&chrTemp[2],8);break;
 			case 0x53:	memcpy(&stcAngle,&chrTemp[2],8);break;

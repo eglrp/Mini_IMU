@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <fcntl.h>1
+#include <fcntl.h>
 
 #include <unistd.h>
 #include <termios.h>
@@ -19,6 +19,11 @@
 #include "time.h"
 #include "stdio.h"
 #include "JY901.h"
+
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+
+
 unsigned char ucComNo[2] ={0,0};
 int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
 {
@@ -77,9 +82,18 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
             cfsetispeed(&newtio, B115200);
             cfsetospeed(&newtio, B115200);
             break;
+        case 921600:
+            cfsetispeed(&newtio,B921600);
+            cfsetospeed(&newtio,B921600);
+            break;
+        case 460800:
+            cfsetispeed(&newtio,B460800);
+            cfsetospeed(&newtio,B460800);
+            break;
+
         default:
-            cfsetispeed(&newtio, B9600);
-            cfsetospeed(&newtio, B9600);
+            cfsetispeed(&newtio, B921600);
+            cfsetospeed(&newtio, B921600);
             break;
     }
     if( nStop == 1 )
@@ -105,18 +119,26 @@ int main(int argc, char* argv[])
 {
     CJY901 JY901;
 
-    int fd = open("/dev/ttyUSB0",O_RDWR|O_NOCTTY);
-    if(-1==fd)
-    {
-        std::cout << " can't open device"<< std::endl;
-    }
+//    int fd = open("/dev/ttyUSB0",O_RDWR|O_NOCTTY);
+//    if(-1==fd)
+//    {
+//        std::cout << " can't open device"<< std::endl;
+//    }
+
 
     char chrBuffer[2000];
     unsigned short usLength=0,usCnt=0;
-    unsigned long ulBaund=115200,ulComNo=3;
-    signed char cResult= 1;
 
-    set_opt(fd,115200,8,'N',1);
+//    set_opt(fd,460800,8,'N',1);
+    boost::asio::io_service io;
+    boost::asio::serial_port sp(io,"/dev/ttyUSB0");
+    sp.set_option(boost::asio::serial_port::baud_rate(921600));
+//    sp.set_option(boost::asio::serial_port::baud_rate(460800));
+    sp.set_option(boost::asio::serial_port::flow_control());
+    sp.set_option(boost::asio::serial_port::parity());
+    sp.set_option(boost::asio::serial_port::stop_bits());
+    sp.set_option(boost::asio::serial_port::character_size(8));
+
 //    while(cResult!=0)
 //    {
 //        cResult = OpenCOMDevice(ulComNo,ulBaund);
@@ -127,15 +149,17 @@ int main(int argc, char* argv[])
     {
 
 //        usLength = CollectUARTData(ulComNo,chrBuffer);
-        usLength = read(fd,chrBuffer,1000);
+//        usLength = read(fd,chrBuffer,2000);
+        boost::system::error_code err;
+        usLength = sp.read_some(boost::asio::buffer(chrBuffer,1000),err);
         if (usLength>0)
         {
             JY901.CopeSerialData(chrBuffer,usLength);
         }
 //        Sleep(100);
-        usleep(1);
+        usleep(1100);
 
-        if (usCnt++>=0&& last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
+        if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
             usCnt=0;
             printf("Time:20%d-%d-%d %d:%d:%.3f\r\n",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
