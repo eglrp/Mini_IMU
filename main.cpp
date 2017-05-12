@@ -20,8 +20,8 @@
 #include "stdio.h"
 #include "JY901.h"
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
+//#include <boost/asio.hpp>
+//#include <boost/bind.hpp>
 
 #include <fstream>
 
