@@ -139,6 +139,8 @@ public:
 	struct SLonLat 		stcLonLat;
 	struct SGPSV 		stcGPSV;
 	bool isend = false;
+    unsigned char global_buff[2000];
+    int last_len = 0;
 	
     CJY901(){
 		std::cout << "after initial jy901"<< std::endl;
@@ -167,7 +169,8 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 
 
 
-	memcpy(chrTemp,ucData,usLength);
+	memcpy(chrTemp,global_buff,last_len);
+	memcpy(&chrTemp[last_len],ucData,usLength);
 	usRxLength += usLength;
 	while (usRxLength >= 11)
 	{
@@ -192,6 +195,8 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 		usRxLength -= 11;
 		memcpy(&chrTemp[0],&chrTemp[11],usRxLength);
 	}
+    memcpy(global_buff,&chrTemp[11],usRxLength);
+    last_len = usRxLength;
 }
 //extern CJY901 JY901;
 #endif

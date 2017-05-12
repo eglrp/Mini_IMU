@@ -23,6 +23,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
+#include <fstream>
+
 
 unsigned char ucComNo[2] ={0,0};
 int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
@@ -119,25 +121,26 @@ int main(int argc, char* argv[])
 {
     CJY901 JY901;
 
-//    int fd = open("/dev/ttyUSB0",O_RDWR|O_NOCTTY);
+    int fd = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY);
 //    if(-1==fd)
 //    {
 //        std::cout << " can't open device"<< std::endl;
 //    }
+    std::ofstream out_file("test.txt");
 
 
     char chrBuffer[2000];
     unsigned short usLength=0,usCnt=0;
 
-//    set_opt(fd,460800,8,'N',1);
-    boost::asio::io_service io;
-    boost::asio::serial_port sp(io,"/dev/ttyUSB1");
-//    sp.set_option(boost::asio::serial_port::baud_rate(1382400));
-    sp.set_option(boost::asio::serial_port::baud_rate(460800));
-    sp.set_option(boost::asio::serial_port::flow_control());
-    sp.set_option(boost::asio::serial_port::parity());
-    sp.set_option(boost::asio::serial_port::stop_bits());
-    sp.set_option(boost::asio::serial_port::character_size(8));
+    set_opt(fd, 115200, 8, 'N', 1);
+//    boost::asio::io_service io;
+//    boost::asio::serial_port sp(io,"/dev/ttyUSB0");
+////    sp.set_option(boost::asio::serial_port::baud_rate(1382400));
+//    sp.set_option(boost::asio::serial_port::baud_rate(115200));
+//    sp.set_option(boost::asio::serial_port::flow_control());
+//    sp.set_option(boost::asio::serial_port::parity());
+//    sp.set_option(boost::asio::serial_port::stop_);
+//    sp.set_option(boost::asio::serial_port::character_size(8));
 
 //    while(cResult!=0)
 //    {
@@ -149,15 +152,15 @@ int main(int argc, char* argv[])
     {
 
 //        usLength = CollectUARTData(ulComNo,chrBuffer);
-//        usLength = read(fd,chrBuffer,2000);
-        boost::system::error_code err;
-        usLength = sp.read_some(boost::asio::buffer(chrBuffer,1000),err);
+        usLength = read(fd, chrBuffer, 2000);
+//        boost::system::error_code err;
+//        usLength = sp.read_some(boost::asio::buffer(chrBuffer,1000),err);
         if (usLength>0)
         {
             JY901.CopeSerialData(chrBuffer,usLength);
         }
 //        Sleep(100);
-        usleep(1100);
+//        usleep(1100);
 
         if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
@@ -181,6 +184,17 @@ int main(int argc, char* argv[])
 
 //            printf("GPSHeight:%.1fm GPSYaw:%.1fDeg GPSV:%.3fkm/h\r\n\r\n",(float)JY901.stcGPSV.sGPSHeight/10,(float)JY901.stcGPSV.sGPSYaw/10,(float)JY901.stcGPSV.lGPSVelocity/1000);
 
+            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
+                     (short) JY901.stcTime.ucDay << "-" <<
+                     (short) JY901.stcTime.ucHour << ":" <<
+                     (short) JY901.stcTime.ucMinute << ":"
+                     << (float) JY901.stcTime.ucSecond + (float) JY901.stcTime.usMiliSecond / 1000<<" " <<
+             (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16<<" "<<
+                    (float) JY901.stcAcc.a[2] / 32768 * 16 << " " <<
+            (float) JY901.stcGyro.w[0] / 32768 * 2000<<" " <<  (float) JY901.stcGyro.w[1] / 32768 * 2000 << " " <<
+                    (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
+            JY901.stcMag.h[0] << " " <<  JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
+            out_file << std::endl;
             last_milisecond=(float)JY901.stcTime.usMiliSecond/1000;
         }
 
