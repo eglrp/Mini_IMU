@@ -131,9 +131,9 @@ int main(int argc, char* argv[])
 
 //    set_opt(fd,460800,8,'N',1);
     boost::asio::io_service io;
-    boost::asio::serial_port sp(io,"/dev/ttyUSB0");
-    sp.set_option(boost::asio::serial_port::baud_rate(921600));
-//    sp.set_option(boost::asio::serial_port::baud_rate(460800));
+    boost::asio::serial_port sp(io,"/dev/ttyUSB1");
+//    sp.set_option(boost::asio::serial_port::baud_rate(1382400));
+    sp.set_option(boost::asio::serial_port::baud_rate(460800));
     sp.set_option(boost::asio::serial_port::flow_control());
     sp.set_option(boost::asio::serial_port::parity());
     sp.set_option(boost::asio::serial_port::stop_bits());

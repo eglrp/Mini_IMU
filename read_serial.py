@@ -11,10 +11,12 @@ if __name__ == '__main__':
     while 1:
         data = t.read(1)
         # print(data)
-        if data == 0x80:
+        # print(len(data))
+        if data[0] == 0x55:
             chrtmp = t.read(10)
-            print("in")
-            if chrtmp[0] == b'\x50':
+            # print("in")
+            print(chrtmp)
+            if chrtmp[0] == 0x50:
                 print("chrtmp",chrtmp)
 
 
