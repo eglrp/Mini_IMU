@@ -24,6 +24,7 @@
 //#include <boost/bind.hpp>
 
 #include <fstream>
+#include <cmath>
 
 
 unsigned char ucComNo[2] ={0,0};
@@ -132,7 +133,7 @@ int main(int argc, char* argv[])
     char chrBuffer[2000];
     unsigned short usLength=0,usCnt=0;
 
-    set_opt(fd, 115200, 8, 'N', 1);
+    set_opt(fd, 460800, 8, 'O', 1);
 //    boost::asio::io_service io;
 //    boost::asio::serial_port sp(io,"/dev/ttyUSB0");
 ////    sp.set_option(boost::asio::serial_port::baud_rate(1382400));
@@ -165,8 +166,15 @@ int main(int argc, char* argv[])
         if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
             usCnt=0;
+
+            if(std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.005)>0.0001)
+            {
+               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond << std::endl;
+
+            }
             printf("Time:20%d-%d-%d %d:%d:%.3f\r\n",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
                    (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(float)JY901.stcTime.ucSecond+(float)JY901.stcTime.usMiliSecond/1000);
+
 
 //            printf("Acc:%.3f %.3f %.3f\r\n",(float)JY901.stcAcc.a[0]/32768*16,(float)JY901.stcAcc.a[1]/32768*16,(float)JY901.stcAcc.a[2]/32768*16);
 

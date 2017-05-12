@@ -178,6 +178,7 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 		{
 			usRxLength--;
 			memcpy(&chrTemp[0],&chrTemp[1],usRxLength);
+//            std::cout << " error " << std::endl;
 			continue;
 		}
 		switch(chrTemp[1])
@@ -195,7 +196,7 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 		usRxLength -= 11;
 		memcpy(&chrTemp[0],&chrTemp[11],usRxLength);
 	}
-    memcpy(global_buff,&chrTemp[11],usRxLength);
+    memcpy(global_buff,chrTemp,usRxLength);
     last_len = usRxLength;
 }
 //extern CJY901 JY901;
