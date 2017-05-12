@@ -1,6 +1,8 @@
 #ifndef JY901_h
 #define JY901_h
 #include "string.h"
+#include <thread>
+#include <mutex>
 #define SAVE 			0x00
 #define CALSW 		0x01
 #define RSW 			0x02
@@ -140,8 +142,12 @@ public:
 	struct SGPSV 		stcGPSV;
 	bool isend = false;
     unsigned char global_buff[2000];
-    int last_len = 0;
-	
+	int last_len = -1;
+
+	std::mutex preprocess_mutex_;
+
+	unsigned char chrTemp[4000];
+
     CJY901(){
 		std::cout << "after initial jy901"<< std::endl;
 	}
@@ -163,14 +169,18 @@ public:
 
 void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 {
-	static unsigned char chrTemp[2000];
 	static unsigned char ucRxCnt = 0;
 	static unsigned short usRxLength = 0;
 
 
+//	preprocess_mutex_.lock();
+	if (last_len >= 0) {
+		memcpy(chrTemp, global_buff, last_len);
+		memcpy(&chrTemp[last_len], ucData, usLength);
 
-	memcpy(chrTemp,global_buff,last_len);
-	memcpy(&chrTemp[last_len],ucData,usLength);
+	} else {
+		memcpy(chrTemp, ucData, usLength);
+	}
 	usRxLength += usLength;
 	while (usRxLength >= 11)
 	{
@@ -198,6 +208,7 @@ void CJY901::CopeSerialData(char ucData[],unsigned short usLength)
 	}
     memcpy(global_buff,chrTemp,usRxLength);
     last_len = usRxLength;
+//	preprocess_mutex_.unlock();
 }
 //extern CJY901 JY901;
 #endif

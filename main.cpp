@@ -26,6 +26,19 @@
 #include <fstream>
 #include <cmath>
 
+#include <mutex>
+#include <thread>
+
+
+#include <chrono>
+long double now()
+{
+    auto tt = std::chrono::system_clock::now();
+    auto t_nanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(tt.time_since_epoch());
+
+    double time_now(double(t_nanosec.count())*1e-9);
+    return time_now;
+}
 
 unsigned char ucComNo[2] ={0,0};
 int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
@@ -120,20 +133,31 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
 }
 int main(int argc, char* argv[])
 {
+
+    std::string dev_str("/dev/ttyUSB0");
+    std::string save_file("test"+std::to_string(now())+".txt");
+
+    if(argc == 3)
+    {
+        dev_str=std::string(argv[1]);
+        save_file = std::string(argv[2]);
+    }
+
+
     CJY901 JY901;
 
-    int fd = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY);
+    int fd = open(dev_str.c_str(), O_RDWR | O_NOCTTY);
 //    if(-1==fd)
 //    {
 //        std::cout << " can't open device"<< std::endl;
 //    }
-    std::ofstream out_file("test.txt");
+    std::ofstream out_file(save_file);
 
 
-    char chrBuffer[2000];
+    char chrBuffer[4000];
     unsigned short usLength=0,usCnt=0;
 
-    set_opt(fd, 460800, 8, 'O', 1);
+    set_opt(fd, 460800, 8, 'N', 1);
 //    boost::asio::io_service io;
 //    boost::asio::serial_port sp(io,"/dev/ttyUSB0");
 ////    sp.set_option(boost::asio::serial_port::baud_rate(1382400));
@@ -149,42 +173,54 @@ int main(int argc, char* argv[])
 //    }
 
     float last_milisecond = (float)JY901.stcTime.usMiliSecond/1000;
+    int error_times = 0;
+    double start_time =now();
+    out_file.precision(10);
     while(1)
     {
 
 //        usLength = CollectUARTData(ulComNo,chrBuffer);
-        usLength = read(fd, chrBuffer, 2000);
+        usLength = read(fd, chrBuffer, 4000);
 //        boost::system::error_code err;
 //        usLength = sp.read_some(boost::asio::buffer(chrBuffer,1000),err);
         if (usLength>0)
         {
+
+//            auto t= std::thread((JY901.CopeSerialData),chrBuffer,usLength);
+//            t.detach();
             JY901.CopeSerialData(chrBuffer,usLength);
         }
 //        Sleep(100);
-//        usleep(1100);
+//        usleep(50);
 
         if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
             usCnt=0;
 
-            if(std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.005)>0.0001)
+            if(std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.005)>0.0001&&
+                std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.995)>0.0001    )
             {
-               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond << std::endl;
+//               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond ;//<< std::endl;
+                error_times++;
+                if(error_times%1==0)
+                {
+                    std::cout << error_times <<"average time :" << (now()-start_time)/double(error_times)<< std::endl;
+                }
 
             }
-            printf("Time:20%d-%d-%d %d:%d:%.3f\r\n",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
-                   (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(float)JY901.stcTime.ucSecond+(float)JY901.stcTime.usMiliSecond/1000);
+//            printf("Time:20%d-%d-%d %d:%d:%.3f",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
+//                   (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(float)JY901.stcTime.ucSecond+(float)JY901.stcTime.usMiliSecond/1000);
 
 
-//            printf("Acc:%.3f %.3f %.3f\r\n",(float)JY901.stcAcc.a[0]/32768*16,(float)JY901.stcAcc.a[1]/32768*16,(float)JY901.stcAcc.a[2]/32768*16);
+//            printf("Acc:%.3f %.3f %.3f",(float)JY901.stcAcc.a[0]/32768*16,(float)JY901.stcAcc.a[1]/32768*16,(float)JY901.stcAcc.a[2]/32768*16);
 
-//            printf("Gyro:%.3f %.3f %.3f\r\n",(float)JY901.stcGyro.w[0]/32768*2000,(float)JY901.stcGyro.w[1]/32768*2000,(float)JY901.stcGyro.w[2]/32768*2000);
+//            printf("Gyro:%.3f %.3f %.3f",(float)JY901.stcGyro.w[0]/32768*2000,(float)JY901.stcGyro.w[1]/32768*2000,(float)JY901.stcGyro.w[2]/32768*2000);
 
 //            printf("Angle:%.3f %.3f %.3f\r\n",(float)JY901.stcAngle.Angle[0]/32768*180,(float)JY901.stcAngle.Angle[1]/32768*180,(float)JY901.stcAngle.Angle[2]/32768*180);
 
-//            printf("Mag:%d %d %d\r\n",JY901.stcMag.h[0],JY901.stcMag.h[1],JY901.stcMag.h[2]);
+//            printf("Mag:%d %d %d",JY901.stcMag.h[0],JY901.stcMag.h[1],JY901.stcMag.h[2]);
 
-//            printf("Pressure:%lx Height%.2f\r\n",JY901.stcPress.lPressure,(float)JY901.stcPress.lAltitude/100);
+//            printf("Pressure:%lx Height%.2f",JY901.stcPress.lPressure,(float)JY901.stcPress.lAltitude/100);
 
 //            printf("DStatus:%d %d %d %d\r\n",JY901.stcDStatus.sDStatus[0],JY901.stcDStatus.sDStatus[1],JY901.stcDStatus.sDStatus[2],JY901.stcDStatus.sDStatus[3]);
 
@@ -196,7 +232,7 @@ int main(int argc, char* argv[])
                      (short) JY901.stcTime.ucDay << "-" <<
                      (short) JY901.stcTime.ucHour << ":" <<
                      (short) JY901.stcTime.ucMinute << ":"
-                     << (float) JY901.stcTime.ucSecond + (float) JY901.stcTime.usMiliSecond / 1000<<" " <<
+                     << (float) JY901.stcTime.ucSecond <<"."<< (float) JY901.stcTime.usMiliSecond <<" " <<
              (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16<<" "<<
                     (float) JY901.stcAcc.a[2] / 32768 * 16 << " " <<
             (float) JY901.stcGyro.w[0] / 32768 * 2000<<" " <<  (float) JY901.stcGyro.w[1] / 32768 * 2000 << " " <<
