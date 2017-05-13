@@ -175,7 +175,8 @@ int main(int argc, char* argv[])
     float last_milisecond = (float)JY901.stcTime.usMiliSecond/1000;
     int error_times = 0;
     double start_time =now();
-    out_file.precision(10);
+    out_file.precision(20);
+    out_file << now() << std::endl;
     while(1)
     {
 
@@ -228,13 +229,13 @@ int main(int argc, char* argv[])
 
 //            printf("GPSHeight:%.1fm GPSYaw:%.1fDeg GPSV:%.3fkm/h\r\n\r\n",(float)JY901.stcGPSV.sGPSHeight/10,(float)JY901.stcGPSV.sGPSYaw/10,(float)JY901.stcGPSV.lGPSVelocity/1000);
 
-//            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
-//                     (short) JY901.stcTime.ucDay << "-" <<
-//                     (short) JY901.stcTime.ucHour << ":" <<
-//                     (short) JY901.stcTime.ucMinute << ":"
-//                     << (float) JY901.stcTime.ucSecond <<"."<< (float) JY901.stcTime.usMiliSecond <<" " <<
-            out_file.precision(30);
-            out_file<<now()<<" "<<
+            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
+                     (short) JY901.stcTime.ucDay << "-" <<
+                     (short) JY901.stcTime.ucHour << ":" <<
+                     (short) JY901.stcTime.ucMinute << ":"
+                     << (float) JY901.stcTime.ucSecond <<"."<< (float) JY901.stcTime.usMiliSecond <<" " <<
+//            out_file.precision(30);
+//            out_file<<now()<<" "<<
              (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16<<" "<<
                     (float) JY901.stcAcc.a[2] / 32768 * 16 << " " <<
             (float) JY901.stcGyro.w[0] / 32768 * 2000<<" " <<  (float) JY901.stcGyro.w[1] / 32768 * 2000 << " " <<

@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     os.mkdir(sub_dir_name)
 
-    IMU_dev = '/dev/ttyUSB1'
+    IMU_dev = '/dev/ttyUSB3'
     IMU_file = sub_dir_name+'/imu.txt'
 
     UWB_dev = '/dev/ttyUSB2'
