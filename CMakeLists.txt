@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(Mini_IMU)
 
-#set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 #find_package(Boost REQUIRED COMPONENTS system
 #        )
 #set(Boost_USE_STATIC_LIBS        ON) # only find static libs
