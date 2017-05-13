@@ -4,6 +4,8 @@
 import serial
 import time
 
+import sys
+
 
 class UwbReader:
     def __init__(self, dev_name, save_file_name):
@@ -21,12 +23,23 @@ class UwbReader:
 
 
 if __name__ == '__main__':
+    dev_name = '/dev/ttyUSB1'
+    save_dir = './'
+
+
+    for tt in sys.argv:
+        if 'dev' in tt:
+            dev_name = tt
+        elif 'IMU' in tt:
+            save_dir=tt
+
+
     start_time = time.time()
     print(start_time)
-    save_source_file = open("./" + str(start_time) + "_uwbdata.txt", 'wb')
+    save_source_file = open(save_dir + str(start_time) + "_uwbdata.txt", 'wb')
 
     # print(time.strftime("%Y-%m-%d", start_time))
-    t = serial.Serial('com3', 115200)
+    t = serial.Serial(dev_name, 115200)
     while (t.isOpen()):
         data = t.readline()
         print(data)
