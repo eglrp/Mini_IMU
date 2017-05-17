@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(Mini_IMU)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4 -msse2 -msse3 -msse4 -lpthread ")
+
 #find_package(Boost REQUIRED COMPONENTS system
 #        )
 #set(Boost_USE_STATIC_LIBS        ON) # only find static libs

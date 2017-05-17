@@ -17,6 +17,7 @@
 /**
  *
  */
+template<typename T>
 class CharQueue {
 
 public:
@@ -38,7 +39,19 @@ public:
      * @param len length of data
      * @return true :
      */
-    bool AddBuf(char buff[], int len);
+    bool AddBuf(T buff[], int len) {
+        if (len <= 0) {
+            return true;
+        } else {
+            data_mutex_.lock();
+
+            for (int i(0); i < len; ++i) {
+                data_buf_.push_back(buff[i]);
+            }
+            data_mutex_.unlock();
+            return true;
+        }
+    }
 
     /**
      * Read first several data from queue.
@@ -46,17 +59,59 @@ public:
      * @param len length
      * @return
      */
-    bool ReadBuf(char *buff, int len);
+    bool ReadBuf(T buff[], int len) {
+        if (len > data_buf_.size()) {
+            return false;
+        }
+
+        if (len <= 0) {
+            return true;
+        } else {
+            data_mutex_.lock();
+            for (int i(0); i < len; ++i) {
+                buff[i] = data_buf_.at(i);
+//                printf("inside :%02X\n", data_buf_.at(i));
+            }
+            data_mutex_.unlock();
+            return true;
+        }
+    }
 
     /**
      * delete several data from head of the queue
      * @param len
      * @return
      */
-    bool DeletBuf(int len);
+    bool DeletBuf(int len) {
+        if (len > data_buf_.size()) {
+            return false;
+        } else {
+            if (len < 0) {
+                return false;
+            } else {
+                data_mutex_.lock();
+                try {
+                    for (int i(0); i < len; ++i) {
+                        data_buf_.pop_front();
+                    }
+                } catch (std::exception &e) {
+                    std::cout << e.what() << std::endl;
+                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                }
+
+                data_mutex_.unlock();
+            }
+        }
+
+
+    }
+
+    inline int getSize() {
+        return data_buf_.size();
+    }
 
 private:
-    std::deque<char> data_buf_;
+    std::deque<T> data_buf_;
 
     std::mutex data_mutex_;
 
