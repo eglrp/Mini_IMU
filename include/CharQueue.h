@@ -70,7 +70,6 @@ public:
             data_mutex_.lock();
             for (int i(0); i < len; ++i) {
                 buff[i] = data_buf_.at(i);
-//                printf("inside :%02X\n", data_buf_.at(i));
             }
             data_mutex_.unlock();
             return true;

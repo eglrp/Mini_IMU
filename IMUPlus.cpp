@@ -203,60 +203,31 @@ int main(int argc, char* argv[])
     t.detach();
 
     sleep(1);
-
-//    while(1)
-//    {
-//        char  t[2];
-//        cq.ReadBuf(t,2);
-////        std::cout << "size " << cq.getSize() << std::endl;
-//        if((t[0])==0x55){
-//            std::cout << "break" << std::endl;
-//            break;
-//        }else{
-////            std::cout << t[0] << std::endl;
-////            printf("is : %02X\n",t[0]);
-//            cq.DeletBuf(1);
-//        }
-//        usleep(1000);
-//    }
-
+    int counter_times(0);
 
 
     while(1)
     {
-
-//        usLength = CollectUARTData(ulComNo,chrBuffer);
-//        usLength = read(fd, chrBuffer, 4000);
-//        boost::system::error_code err;
-//        usLength = sp.read_some(boost::asio::buffer(chrBuffer,1000),err);
-
-//        if(cq.ReadBuf(chrBuffer,1))
+//        while(cq.getSize()<1)
 //        {
-//            if
+//            usleep(100);
 //        }
+
         if(cq.ReadBuf(chrBuffer,5))
         {
             cq.DeletBuf(5);
             usLength = 5;
         }else{
-//            std::cout << "wait ?" << std::endl;
-            if(cq.getSize()==0)
-            {
-                usleep(1000);
-            }
+
             continue;
         }
 
-
-
         if (usLength>0)
         {
-//            auto t= std::thread((JY901.CopeSerialData),chrBuffer,usLength);
-//            t.detach();
             JY901.CopeSerialData(chrBuffer,usLength);
         }
 //        Sleep(100);
-//        usleep(50);
+//        usleep(1000);
 
         if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
@@ -305,7 +276,15 @@ int main(int argc, char* argv[])
                      (float) JY901.stcGyro.w[0] / 32768 * 2000<<" " <<  (float) JY901.stcGyro.w[1] / 32768 * 2000 << " " <<
                      (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
                      JY901.stcMag.h[0] << " " <<  JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
-            out_file << std::endl;
+//            counter_times++;
+//            if(counter_times<100)
+//            {
+//                out_file<<"\n";
+//            }else{
+//
+                out_file << std::endl;
+//                counter_times=0;
+//            }
             last_milisecond=(float)JY901.stcTime.usMiliSecond/1000;
 
         }
