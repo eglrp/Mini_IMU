@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 11)
 #        ${Boost_LIBRARY_DIRS}
 #)
 include_directories(
-        ./
+        ./include
 )
 
 set(SOURCE_FILES main.cpp  JY901.h)
@@ -24,4 +24,4 @@ add_executable(Mini_IMU ${SOURCE_FILES})
 #target_link_libraries(Mini_IMU ${Boost_LIBRARIES})
 
 
-add_executable(IMUPlus IMUPlus.cpp)
+add_executable(IMUPlus IMUPlus.cpp include/CharQueue.cpp include/CharQueue.h)

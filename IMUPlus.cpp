@@ -35,6 +35,9 @@
 
 
 #include <chrono>
+
+#include "CharQueue.h"
+
 double now()
 {
     auto tt = std::chrono::system_clock::now();
@@ -135,6 +138,9 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
     printf("set done!\n");
     return 0;
 }
+
+
+
 int main(int argc, char* argv[])
 {
     std::string dev_str("/dev/ttyUSB0");
