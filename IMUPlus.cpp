@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
 //            usleep(100);
 //        }
 
-        int size = 11;
+        int size = 10;
         if (cq.ReadBuf(chrBuffer, size)) {
 
             cq.DeletBuf(size);
