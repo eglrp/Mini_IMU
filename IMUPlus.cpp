@@ -298,7 +298,8 @@ int main(int argc, char *argv[]) {
                      (float) JY901.stcGyro.w[0] / 32768 * 2000 << " " << (float) JY901.stcGyro.w[1] / 32768 * 2000
                      << " " <<
                      (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
-                     JY901.stcMag.h[0] << " " << JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
+                     JY901.stcMag.h[0] << " " << JY901.stcMag.h[1] << " " << JY901.stcMag.h[2]
+                    << " " << JY901.stcPress.lPressure;
             out_file<<std::endl;
 //            counter_times++;
 //            if(counter_times<100)
