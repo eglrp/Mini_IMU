@@ -139,9 +139,9 @@ void ReadThread(int fd, CharQueue<char> &cq) {
     int first_time = 0;
     while (true) {
 
-        length = read(fd, buff, 1);
-        if (first_time < 10) {
-            length = read(fd,buff,11);
+        length = read(fd, buff, 1000);
+        if (first_time < 20) {
+            length = read(fd,buff,3100);
             first_time += 1;
             continue;
         } else {
@@ -149,7 +149,7 @@ void ReadThread(int fd, CharQueue<char> &cq) {
                 cq.AddBuf(buff, length);
 //            std::cout << " buff lenght :" << length << std::endl;
             }else{
-                usleep(1000);
+                usleep(100);
             }
         }
 
@@ -159,7 +159,7 @@ void ReadThread(int fd, CharQueue<char> &cq) {
 
 
 int main(int argc, char *argv[]) {
-    std::string dev_str("/dev/ttyUSB1");
+    std::string dev_str("/dev/ttyUSB0");
     std::string save_file("test" + std::to_string(now()) + ".txt");
 
     if (argc == 3) {
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
             usLength = size;
         } else {
             usLength = 0;
-            usleep(1000);
+            usleep(100);
         }
 
         if (usLength > 0) {
