@@ -63,7 +63,7 @@ public:
         }
 
         if (len <= 0) {
-            return false;
+            return true;
         } else {
             data_mutex_.lock();
             for (int i(0); i < len; ++i) {
@@ -102,15 +102,15 @@ public:
 
     inline int getSize() {
         int size  = 0;
-        data_mutex_.lock();
+//        data_mutex_.lock();
         size=data_length_;
-        data_mutex_.unlock();
+//        data_mutex_.unlock();
         return size;
     }
 
 private:
 //    std::deque<T> data_buf_;
-    T data_buf_[700000];
+    T data_buf_[100000];
     int data_length_=0;
 
 

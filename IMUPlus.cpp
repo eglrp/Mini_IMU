@@ -140,8 +140,8 @@ void ReadThread(int fd, CharQueue<char> &cq) {
     while (true) {
 
         length = read(fd, buff, 1);
-        if (first_time < 100) {
-            length = read(fd,buff,4000);
+        if (first_time < 10) {
+            length = read(fd,buff,11);
             first_time += 1;
             continue;
         } else {
@@ -157,7 +157,7 @@ void ReadThread(int fd, CharQueue<char> &cq) {
 
 
 int main(int argc, char *argv[]) {
-    std::string dev_str("/dev/ttyUSB0");
+    std::string dev_str("/dev/ttyUSB1");
     std::string save_file("test" + std::to_string(now()) + ".txt");
 
     if (argc == 3) {
@@ -183,6 +183,7 @@ int main(int argc, char *argv[]) {
     float last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
     int error_times = 0;
     double start_time = now();
+    double imu_start_time = 0.0;
     out_file.precision(20);
     out_file << now() << std::endl;
 
@@ -193,15 +194,21 @@ int main(int argc, char *argv[]) {
 
     usleep(1000000);
     int counter_times(0);
+    std::cout.precision(20);
+
+    sleep(2);
+    cq.DeletBuf(cq.getSize());
 
 
-    while (1) {
+
+
+    while (true) {
 //        while(cq.getSize()<1)
 //        {
 //            usleep(100);
 //        }
 
-        int size = cq.getSize();
+        int size = 11;
         if (cq.ReadBuf(chrBuffer, size)) {
 
             cq.DeletBuf(size);
@@ -217,10 +224,8 @@ int main(int argc, char *argv[]) {
 //        Sleep(100);
 //        usleep(1000);
 
-        if (usCnt++ >= 0 && JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
+        if ( JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
-            usCnt = 0;
-
             if (std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.005) > 0.0001 &&
                 std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.995) > 0.0001) {
 //               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond ;//<< std::endl;
@@ -232,9 +237,37 @@ int main(int argc, char *argv[]) {
                 }
 
             }
+            char str_time[100]={0};
+            sprintf(str_time,"20%d-%02d-%02d %02d:%02d:%02d\n",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
+                    (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(short)(float)JY901.stcTime.ucSecond);
+
+            struct tm t={0};
+//            std::cout << "char :" << str_time<<" ";
+
+//            strftime(str_time, 29,"%Y-%m-%d %H:%M:%S\n", &t);
+            t.tm_year=(short)JY901.stcTime.ucYear;
+            t.tm_mon=(short)JY901.stcTime.ucMonth;
+            t.tm_mday=(short)JY901.stcTime.ucDay;
+            t.tm_hour=(short)JY901.stcTime.ucHour;
+            t.tm_min=(short)JY901.stcTime.ucMinute;
+            t.tm_sec=(int)(float)JY901.stcTime.ucSecond;
+
+
+//            std::cout << t.tm_hour<<":"<<t.tm_min<<":"<<t.tm_sec<<" ";
+            double imu_time_now = timegm(&t);
+            imu_time_now += (float)JY901.stcTime.usMiliSecond/1000;
+            if(counter_times==0)
+            {
+//                imu_start_time =
+                imu_start_time =imu_time_now;
+                counter_times++;
+                std::cout << "reset first start time " << std::endl;
+            }
+
+//            std::cout  <<"time :" << imu_time_now-imu_start_time+start_time<<"offset time: " << imu_time_now-imu_start_time<<std::endl;
 //            printf("Time:20%d-%d-%d %d:%d:%.3f",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
 //                   (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(float)JY901.stcTime.ucSecond+(float)JY901.stcTime.usMiliSecond/1000);
-//
+
 //
 //            printf("Acc:%.3f %.3f %.3f",(float)JY901.stcAcc.a[0]/32768*16,(float)JY901.stcAcc.a[1]/32768*16,(float)JY901.stcAcc.a[2]/32768*16);
 //
@@ -252,11 +285,12 @@ int main(int argc, char *argv[]) {
 //
 //            printf("GPSHeight:%.1fm GPSYaw:%.1fDeg GPSV:%.3fkm/h\r\n\r\n",(float)JY901.stcGPSV.sGPSHeight/10,(float)JY901.stcGPSV.sGPSYaw/10,(float)JY901.stcGPSV.lGPSVelocity/1000);
 
-            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
-                     (short) JY901.stcTime.ucDay << "-" <<
-                     (short) JY901.stcTime.ucHour << ":" <<
-                     (short) JY901.stcTime.ucMinute << ":"
-                     << (float) JY901.stcTime.ucSecond << "." << (float) JY901.stcTime.usMiliSecond << " " <<
+//            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
+//                     (short) JY901.stcTime.ucDay << "-" <<
+//                     (short) JY901.stcTime.ucHour << ":" <<
+//                     (short) JY901.stcTime.ucMinute << ":"
+//                     << (float) JY901.stcTime.ucSecond << "." << (float) JY901.stcTime.usMiliSecond << " " <<
+            out_file<<imu_time_now-imu_start_time+start_time<<" "<<
                      //            out_file.precision(30);
                      //            out_file<<now()<<" "<<
                      (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16 << " " <<
@@ -265,13 +299,14 @@ int main(int argc, char *argv[]) {
                      << " " <<
                      (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
                      JY901.stcMag.h[0] << " " << JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
+            out_file<<std::endl;
 //            counter_times++;
 //            if(counter_times<100)
 //            {
 //                out_file<<"\n";
 //            }else{
 //
-            out_file << std::endl;
+//            out_file << std::endl;
 //                counter_times=0;
 //            }
             last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
