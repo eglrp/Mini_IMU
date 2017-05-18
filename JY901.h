@@ -164,7 +164,7 @@ void CJY901::CopeSerialData(char ucData[], unsigned short usLength) {
     static unsigned short usRxLength = 0;
 
 
-    if (last_len >= 0) {
+    if (last_len > 0) {
         memcpy(chrTemp, global_buff, last_len);
         memcpy(&chrTemp[last_len], ucData, usLength);
 
@@ -206,6 +206,9 @@ void CJY901::CopeSerialData(char ucData[], unsigned short usLength) {
                 break;
             case 0x58:
                 memcpy(&stcGPSV, &chrTemp[2], 8);
+                break;
+            default:
+                std::cout << "SOME ERROR IN DECODER" << std::endl;
                 break;
         }
         usRxLength -= 11;

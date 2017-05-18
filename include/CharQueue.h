@@ -24,7 +24,7 @@ public:
     CharQueue(int size = 10000) {
         try {
 
-            data_buf_.resize(size);
+//            data_buf_.resize(size);
             data_mutex_.lock();
             data_mutex_.unlock();
         } catch (std::exception &e) {
@@ -44,10 +44,8 @@ public:
             return true;
         } else {
             data_mutex_.lock();
-
-            for (int i(0); i < len; ++i) {
-                data_buf_.push_back(buff[i]);
-            }
+            memcpy(&data_buf_[data_length_],buff,len);
+            data_length_+=len;
             data_mutex_.unlock();
             return true;
         }
@@ -60,16 +58,16 @@ public:
      * @return
      */
     bool ReadBuf(T buff[], int len) {
-        if (len > data_buf_.size()) {
+        if (len > data_length_) {
             return false;
         }
 
         if (len <= 0) {
-            return true;
+            return false;
         } else {
             data_mutex_.lock();
             for (int i(0); i < len; ++i) {
-                buff[i] = data_buf_.at(i);
+                buff[i] = data_buf_[i];
             }
             data_mutex_.unlock();
             return true;
@@ -82,35 +80,39 @@ public:
      * @return
      */
     bool DeletBuf(int len) {
-        if (len > data_buf_.size()) {
+        if (len > data_length_) {
             return false;
         } else {
             if (len < 0) {
                 return false;
             } else {
                 data_mutex_.lock();
-                try {
-                    for (int i(0); i < len; ++i) {
-                        data_buf_.pop_front();
-                    }
-                } catch (std::exception &e) {
-                    std::cout << e.what() << std::endl;
-                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
-                }
+
+
+                data_length_ -= len;
+                memcpy(data_buf_,&data_buf_[len],data_length_);
 
                 data_mutex_.unlock();
             }
         }
+        return true;
 
 
     }
 
     inline int getSize() {
-        return data_buf_.size();
+        int size  = 0;
+        data_mutex_.lock();
+        size=data_length_;
+        data_mutex_.unlock();
+        return size;
     }
 
 private:
-    std::deque<T> data_buf_;
+//    std::deque<T> data_buf_;
+    T data_buf_[700000];
+    int data_length_=0;
+
 
     std::mutex data_mutex_;
 

@@ -3,6 +3,7 @@ project(Mini_IMU)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4 -msse2 -msse3 -msse4 -lpthread ")
+set(CMAKE_BUILD_TYPE RELEASE)
 
 #find_package(Boost REQUIRED COMPONENTS system
 #        )

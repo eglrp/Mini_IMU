@@ -38,30 +38,27 @@
 
 #include "CharQueue.h"
 
-double now()
-{
+double now() {
     auto tt = std::chrono::system_clock::now();
     auto t_nanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(tt.time_since_epoch());
 
-    double time_now(double(t_nanosec.count())*1e-9);
+    double time_now(double(t_nanosec.count()) * 1e-9);
     return time_now;
 }
 
-unsigned char ucComNo[2] ={0,0};
-int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
-{
-    struct termios newtio,oldtio;
-    if  ( tcgetattr( fd,&oldtio)  !=  0)
-    {
+unsigned char ucComNo[2] = {0, 0};
+
+int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
+    struct termios newtio, oldtio;
+    if (tcgetattr(fd, &oldtio) != 0) {
         perror("SetupSerial 1");
         return -1;
     }
-    bzero( &newtio, sizeof( newtio ) );
-    newtio.c_cflag  |=  CLOCAL | CREAD;
+    bzero(&newtio, sizeof(newtio));
+    newtio.c_cflag |= CLOCAL | CREAD;
     newtio.c_cflag &= ~CSIZE;
 
-    switch( nBits )
-    {
+    switch (nBits) {
         case 7:
             newtio.c_cflag |= CS7;
             break;
@@ -70,8 +67,7 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
             break;
     }
 
-    switch( nEvent )
-    {
+    switch (nEvent) {
         case 'O':                     //奇校验
             newtio.c_cflag |= PARENB;
             newtio.c_cflag |= PARODD;
@@ -87,8 +83,7 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
             break;
     }
 
-    switch( nSpeed )
-    {
+    switch (nSpeed) {
         case 2400:
             cfsetispeed(&newtio, B2400);
             cfsetospeed(&newtio, B2400);
@@ -106,12 +101,12 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
             cfsetospeed(&newtio, B115200);
             break;
         case 921600:
-            cfsetispeed(&newtio,B921600);
-            cfsetospeed(&newtio,B921600);
+            cfsetispeed(&newtio, B921600);
+            cfsetospeed(&newtio, B921600);
             break;
         case 460800:
-            cfsetispeed(&newtio,B460800);
-            cfsetospeed(&newtio,B460800);
+            cfsetispeed(&newtio, B460800);
+            cfsetospeed(&newtio, B460800);
             break;
 
         default:
@@ -119,19 +114,15 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
             cfsetospeed(&newtio, B921600);
             break;
     }
-    if( nStop == 1 )
-    {
-        newtio.c_cflag &=  ~CSTOPB;
+    if (nStop == 1) {
+        newtio.c_cflag &= ~CSTOPB;
+    } else if (nStop == 2) {
+        newtio.c_cflag |= CSTOPB;
     }
-    else if ( nStop == 2 )
-    {
-        newtio.c_cflag |=  CSTOPB;
-    }
-    newtio.c_cc[VTIME]  = 0;
+    newtio.c_cc[VTIME] = 0;
     newtio.c_cc[VMIN] = 0;
-    tcflush(fd,TCIFLUSH);
-    if((tcsetattr(fd,TCSANOW,&newtio))!=0)
-    {
+    tcflush(fd, TCIFLUSH);
+    if ((tcsetattr(fd, TCSANOW, &newtio)) != 0) {
         perror("com set error");
         return -1;
     }
@@ -139,39 +130,38 @@ int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
     return 0;
 }
 
-void ReadThread(int fd,CharQueue<char> & cq){
+void ReadThread(int fd, CharQueue<char> &cq) {
 //   std::thread::
-    usleep(100000);
+//    usleep(1000);
     std::cout << "start read" << std::endl;
-    char  buff[4096];
-    while(true)
-    {
+    char buff[4000];
+    unsigned short length = 0;
+    int first_time = 0;
+    while (true) {
 
-        int length = read(fd,buff,4000);
-        if(length>0)
-        {
-            cq.AddBuf(buff,length);
-//            for(int i(0);i<length;++i)
-//            {
-//                printf("%02x ",buff[i]);
-//            }
-
+        length = read(fd, buff, 1);
+        if (first_time < 100) {
+            length = read(fd,buff,4000);
+            first_time += 1;
+            continue;
+        } else {
+            if (length > 0) {
+                cq.AddBuf(buff, length);
 //            std::cout << " buff lenght :" << length << std::endl;
+            }
         }
-        usleep(100);
+
+        //usleep(100);
     }
 }
 
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     std::string dev_str("/dev/ttyUSB0");
-    std::string save_file("test"+std::to_string(now())+".txt");
+    std::string save_file("test" + std::to_string(now()) + ".txt");
 
-    if(argc == 3)
-    {
-        dev_str=std::string(argv[1]);
+    if (argc == 3) {
+        dev_str = std::string(argv[1]);
         save_file = std::string(argv[2]);
     }
 
@@ -179,68 +169,66 @@ int main(int argc, char* argv[])
     CJY901 JY901;
 
     int fd = open(dev_str.c_str(), O_RDWR | O_NOCTTY);
-    if(-1==fd)
-    {
-        std::cout << " can't open device"<< std::endl;
+    if (-1 == fd) {
+        std::cout << " can't open device" << std::endl;
         return 0;
     }
     std::ofstream out_file(save_file);
 
 
     char chrBuffer[4000];
-    unsigned short usLength=0,usCnt=0;
+    unsigned short usLength = 0, usCnt = 0;
     set_opt(fd, 460800, 8, 'N', 1);
 
-    float last_milisecond = (float)JY901.stcTime.usMiliSecond/1000;
+    float last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
     int error_times = 0;
-    double start_time =now();
+    double start_time = now();
     out_file.precision(20);
     out_file << now() << std::endl;
 
     CharQueue<char> cq(10000);
 
-    std::thread t(ReadThread,fd,std::ref(cq));
+    std::thread t(ReadThread, fd, std::ref(cq));
     t.detach();
 
-    sleep(1);
+    usleep(1000000);
     int counter_times(0);
 
 
-    while(1)
-    {
+    while (1) {
 //        while(cq.getSize()<1)
 //        {
 //            usleep(100);
 //        }
 
-        if(cq.ReadBuf(chrBuffer,5))
-        {
-            cq.DeletBuf(5);
-            usLength = 5;
-        }else{
+        int size = cq.getSize();
+        if (cq.ReadBuf(chrBuffer, size)) {
 
-            continue;
+            cq.DeletBuf(size);
+            usLength = size;
+        } else {
+            usLength = 0;
+//            usleep(1000);
         }
 
-        if (usLength>0)
-        {
-            JY901.CopeSerialData(chrBuffer,usLength);
+        if (usLength > 0) {
+            JY901.CopeSerialData(chrBuffer, usLength);
         }
 //        Sleep(100);
 //        usleep(1000);
 
-        if (usCnt++>=0&&JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
+        if (usCnt++ >= 0 && JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
-            usCnt=0;
+            usCnt = 0;
 
-            if(std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.005)>0.0001&&
-               std::fabs(std::fabs((float)JY901.stcTime.usMiliSecond/1000-last_milisecond)-0.995)>0.0001    )
-            {
+            if (std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.005) > 0.0001 &&
+                std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.995) > 0.0001) {
 //               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond ;//<< std::endl;
                 error_times++;
-                if(error_times%1==0)
-                {
-                    std::cout << error_times <<"average time :" << (now()-start_time)/double(error_times)<< std::endl;
+                if (error_times % 1 == 0) {
+                    std::cout << error_times << "average time :" << (now() - start_time) / double(error_times)
+                              << "cq size :" << cq.getSize() << " "
+                              << std::endl;
                 }
 
             }
@@ -268,24 +256,25 @@ int main(int argc, char* argv[])
                      (short) JY901.stcTime.ucDay << "-" <<
                      (short) JY901.stcTime.ucHour << ":" <<
                      (short) JY901.stcTime.ucMinute << ":"
-                     << (float) JY901.stcTime.ucSecond <<"."<< (float) JY901.stcTime.usMiliSecond <<" " <<
+                     << (float) JY901.stcTime.ucSecond << "." << (float) JY901.stcTime.usMiliSecond << " " <<
                      //            out_file.precision(30);
                      //            out_file<<now()<<" "<<
-                     (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16<<" "<<
+                     (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16 << " " <<
                      (float) JY901.stcAcc.a[2] / 32768 * 16 << " " <<
-                     (float) JY901.stcGyro.w[0] / 32768 * 2000<<" " <<  (float) JY901.stcGyro.w[1] / 32768 * 2000 << " " <<
+                     (float) JY901.stcGyro.w[0] / 32768 * 2000 << " " << (float) JY901.stcGyro.w[1] / 32768 * 2000
+                     << " " <<
                      (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
-                     JY901.stcMag.h[0] << " " <<  JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
+                     JY901.stcMag.h[0] << " " << JY901.stcMag.h[1] << " " << JY901.stcMag.h[2];
 //            counter_times++;
 //            if(counter_times<100)
 //            {
 //                out_file<<"\n";
 //            }else{
 //
-                out_file << std::endl;
+            out_file << std::endl;
 //                counter_times=0;
 //            }
-            last_milisecond=(float)JY901.stcTime.usMiliSecond/1000;
+            last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
 
         }
 
