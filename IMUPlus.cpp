@@ -148,6 +148,8 @@ void ReadThread(int fd, CharQueue<char> &cq) {
             if (length > 0) {
                 cq.AddBuf(buff, length);
 //            std::cout << " buff lenght :" << length << std::endl;
+            }else{
+                usleep(1000);
             }
         }
 
@@ -215,7 +217,7 @@ int main(int argc, char *argv[]) {
             usLength = size;
         } else {
             usLength = 0;
-//            usleep(1000);
+            usleep(1000);
         }
 
         if (usLength > 0) {
