@@ -149,7 +149,7 @@ void ReadThread(int fd, CharQueue<char> &cq) {
                 cq.AddBuf(buff, length);
 //            std::cout << " buff lenght :" << length << std::endl;
             }else{
-                usleep(100);
+//                usleep(100);
             }
         }
 
@@ -187,12 +187,13 @@ int main(int argc, char *argv[]) {
     double start_time = now();
     double imu_start_time = 0.0;
     out_file.precision(20);
-    out_file << now() << std::endl;
+//    out_file << now() << std::endl;
 
     CharQueue<char> cq(10000);
 
     std::thread t(ReadThread, fd, std::ref(cq));
-    t.detach();
+
+//    t.detach();
 
     usleep(1000000);
     int counter_times(0);
@@ -292,16 +293,16 @@ int main(int argc, char *argv[]) {
 //                     (short) JY901.stcTime.ucHour << ":" <<
 //                     (short) JY901.stcTime.ucMinute << ":"
 //                     << (float) JY901.stcTime.ucSecond << "." << (float) JY901.stcTime.usMiliSecond << " " <<
-            out_file<<imu_time_now-imu_start_time+start_time<<" "<<
+            out_file<<imu_time_now-imu_start_time+start_time<<","<<
                      //            out_file.precision(30);
                      //            out_file<<now()<<" "<<
-                     (float) JY901.stcAcc.a[0] / 32768 * 16 << " " << (float) JY901.stcAcc.a[1] / 32768 * 16 << " " <<
-                     (float) JY901.stcAcc.a[2] / 32768 * 16 << " " <<
-                     (float) JY901.stcGyro.w[0] / 32768 * 2000 << " " << (float) JY901.stcGyro.w[1] / 32768 * 2000
-                     << " " <<
-                     (float) JY901.stcGyro.w[2] / 32768 * 2000 << " " <<
-                     JY901.stcMag.h[0] << " " << JY901.stcMag.h[1] << " " << JY901.stcMag.h[2]
-                    << " " << JY901.stcPress.lPressure;
+                     (float) JY901.stcAcc.a[0] / 32768 * 16 << "," << (float) JY901.stcAcc.a[1] / 32768 * 16 << "," <<
+                     (float) JY901.stcAcc.a[2] / 32768 * 16 << "," <<
+                     (float) JY901.stcGyro.w[0] / 32768 * 2000 << "," << (float) JY901.stcGyro.w[1] / 32768 * 2000
+                     << "," <<
+                     (float) JY901.stcGyro.w[2] / 32768 * 2000 << "," <<
+                     JY901.stcMag.h[0] << "," << JY901.stcMag.h[1] << "," << JY901.stcMag.h[2]
+                    << "," << JY901.stcPress.lPressure;
             out_file<<std::endl;
 //            counter_times++;
 //            if(counter_times<100)
