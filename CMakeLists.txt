@@ -27,4 +27,6 @@ add_executable(Mini_IMU ${SOURCE_FILES})
 #target_link_libraries(Mini_IMU ${Boost_LIBRARIES})
 
 
-add_executable(IMUPlus IMUPlus.cpp include/CharQueue.cpp include/CharQueue.h)
+add_executable(IMUPlus IMUPlus.cpp include/CharQueue.cpp include/CharQueue.h include/IMUReader.cpp include/IMUReader.h)
+
+add_executable(IMUWB IMUWB.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)
