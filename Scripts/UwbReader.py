@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     # print(time.strftime("%Y-%m-%d", start_time))
     t = serial.Serial(dev_name, 115200)
+    not_use_data = t.read_all()
     while (t.isOpen()):
         if is_first_time:
             save_source_file = open(save_dir + str(start_time) + "_uwbdata.txt", 'wb')
