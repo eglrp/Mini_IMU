@@ -182,25 +182,33 @@ void CJY901::CopeSerialData(char ucData[], unsigned short usLength) {
             case 0x50:
                 memcpy(&stcTime, &chrTemp[2], 8);
                 isend = true;
+//                std::cout << "time" << std::endl;
                 break;
             case 0x51:
                 memcpy(&stcAcc, &chrTemp[2], 8);
+//                std::cout << "acc" << std::endl;
                 break;
             case 0x52:
                 memcpy(&stcGyro, &chrTemp[2], 8);
+//                std::cout << "gyro" << std::endl;
                 break;
             case 0x53:
                 memcpy(&stcAngle, &chrTemp[2], 8);
+//                std::cout << "angular" << std::endl;
                 break;
             case 0x54:
                 memcpy(&stcMag, &chrTemp[2], 8);
+//                std::cout << "mag" << std::endl;
 //                isend=true;
                 break;
             case 0x55:
                 memcpy(&stcDStatus, &chrTemp[2], 8);
+
                 break;
             case 0x56:
                 memcpy(&stcPress, &chrTemp[2], 8);
+//                std::cout << " press " << std::endl;
+                isend = true;
                 break;
             case 0x57:
                 memcpy(&stcLonLat, &chrTemp[2], 8);
