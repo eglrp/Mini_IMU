@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
     int error_times = 0;
     double start_time = now();
     double imu_start_time = 0.0;
-    out_file.precision(20);
+    out_file.precision(13);
 //    out_file << now() << std::endl;
 
     CharQueue<char> cq(10000);
@@ -234,7 +234,7 @@ int main(int argc, char *argv[]) {
 //            return 0;
 //        }
 
-        int size = 10;
+        int size = 1;
         if (cq.ReadBuf(chrBuffer, size)) {
 
             cq.DeletBuf(size);
@@ -291,39 +291,13 @@ int main(int argc, char *argv[]) {
             if (counter_times == 0) {
 //                imu_start_time =
                 imu_start_time = imu_time_now;
+                start_time = now();
                 counter_times++;
                 std::cout << "reset first start time " << std::endl;
             }
 
-//            std::cout  <<"time :" << imu_time_now-imu_start_time+start_time<<"offset time: " << imu_time_now-imu_start_time<<std::endl;
-//            printf("Time:20%d-%d-%d %d:%d:%.3f",(short)JY901.stcTime.ucYear,(short)JY901.stcTime.ucMonth,
-//                   (short)JY901.stcTime.ucDay,(short)JY901.stcTime.ucHour,(short)JY901.stcTime.ucMinute,(float)JY901.stcTime.ucSecond+(float)JY901.stcTime.usMiliSecond/1000);
 
-//
-//            printf("Acc:%.3f %.3f %.3f",(float)JY901.stcAcc.a[0]/32768*16,(float)JY901.stcAcc.a[1]/32768*16,(float)JY901.stcAcc.a[2]/32768*16);
-//
-//            printf("Gyro:%.3f %.3f %.3f",(float)JY901.stcGyro.w[0]/32768*2000,(float)JY901.stcGyro.w[1]/32768*2000,(float)JY901.stcGyro.w[2]/32768*2000);
-//
-//            printf("Angle:%.3f %.3f %.3f\r\n",(float)JY901.stcAngle.Angle[0]/32768*180,(float)JY901.stcAngle.Angle[1]/32768*180,(float)JY901.stcAngle.Angle[2]/32768*180);
-//
-//            printf("Mag:%d %d %d",JY901.stcMag.h[0],JY901.stcMag.h[1],JY901.stcMag.h[2]);
-//
-//            printf("Pressure:%lx Height%.2f",JY901.stcPress.lPressure,(float)JY901.stcPress.lAltitude/100);
-//
-//            printf("DStatus:%d %d %d %d\r\n",JY901.stcDStatus.sDStatus[0],JY901.stcDStatus.sDStatus[1],JY901.stcDStatus.sDStatus[2],JY901.stcDStatus.sDStatus[3]);
-//
-//            printf("Longitude:%ldDeg%.5fm Lattitude:%ldDeg%.5fm\r\n",JY901.stcLonLat.lLon/10000000,(double)(JY901.stcLonLat.lLon % 10000000)/1e5,JY901.stcLonLat.lLat/10000000,(double)(JY901.stcLonLat.lLat % 10000000)/1e5);
-//
-//            printf("GPSHeight:%.1fm GPSYaw:%.1fDeg GPSV:%.3fkm/h\r\n\r\n",(float)JY901.stcGPSV.sGPSHeight/10,(float)JY901.stcGPSV.sGPSYaw/10,(float)JY901.stcGPSV.lGPSVelocity/1000);
-
-//            out_file << (short) JY901.stcTime.ucYear << "-" << (short) JY901.stcTime.ucMonth << "-" <<
-//                     (short) JY901.stcTime.ucDay << "-" <<
-//                     (short) JY901.stcTime.ucHour << ":" <<
-//                     (short) JY901.stcTime.ucMinute << ":"
-//                     << (float) JY901.stcTime.ucSecond << "." << (float) JY901.stcTime.usMiliSecond << " " <<
             out_file << imu_time_now - imu_start_time + start_time << "," <<
-                     //            out_file.precision(30);
-                     //            out_file<<now()<<" "<<
                      (float) JY901.stcAcc.a[0] / 32768 * 16 << "," << (float) JY901.stcAcc.a[1] / 32768 * 16 << "," <<
                      (float) JY901.stcAcc.a[2] / 32768 * 16 << "," <<
                      (float) JY901.stcGyro.w[0] / 32768 * 2000 << "," << (float) JY901.stcGyro.w[1] / 32768 * 2000
@@ -332,15 +306,7 @@ int main(int argc, char *argv[]) {
                      JY901.stcMag.h[0] << "," << JY901.stcMag.h[1] << "," << JY901.stcMag.h[2]
                      << "," << JY901.stcPress.lPressure;
             out_file << std::endl;
-//            counter_times++;
-//            if(counter_times<100)
-//            {
-//                out_file<<"\n";
-//            }else{
-//
-//            out_file << std::endl;
-//                counter_times=0;
-//            }
+
             last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
 
         }
