@@ -210,14 +210,16 @@ int main(int argc, char *argv[])
 //            close(out_file);
             out_file<< buff;
             std::cout << buff;
-            std::cout.flush();
-            out_file.flush();
+
 
 
         }else{
             usleep(10);
+            std::cout.flush();
+            out_file.flush();
             if(!checkUSB(dev_str))
             {
+
 //                close(out_file);
                 out_file.close();
                 close(fd);
