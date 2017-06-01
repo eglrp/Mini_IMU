@@ -209,13 +209,13 @@ int main(int argc, char *argv[])
 //            write(0,buff,buff_size);
 //            close(out_file);
             out_file<< buff;
-            std::cout << buff;
+//            std::cout << buff;
 
 
 
         }else{
-            usleep(10);
-            std::cout.flush();
+//            usleep(10);
+//            std::cout.flush();
             out_file.flush();
             if(!checkUSB(dev_str))
             {
