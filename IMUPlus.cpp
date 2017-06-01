@@ -215,11 +215,11 @@ int main(int argc, char *argv[]) {
 
 //    t.detach();
 
-    usleep(1000000);
+//    usleep(1000000);
     int counter_times(0);
     std::cout.precision(20);
 
-    sleep(2);
+//    sleep(2);
     cq.DeletBuf(cq.getSize());
 
 
@@ -267,11 +267,11 @@ int main(int argc, char *argv[]) {
                 }
 
             }
-            char str_time[100] = {0};
-            sprintf(str_time, "20%d-%02d-%02d %02d:%02d:%02d\n", (short) JY901.stcTime.ucYear,
-                    (short) JY901.stcTime.ucMonth,
-                    (short) JY901.stcTime.ucDay, (short) JY901.stcTime.ucHour, (short) JY901.stcTime.ucMinute,
-                    (short) (float) JY901.stcTime.ucSecond);
+//            char str_time[100] = {0};
+//            sprintf(str_time, "20%d-%02d-%02d %02d:%02d:%02d\n", (short) JY901.stcTime.ucYear,
+//                    (short) JY901.stcTime.ucMonth,
+//                    (short) JY901.stcTime.ucDay, (short) JY901.stcTime.ucHour, (short) JY901.stcTime.ucMinute,
+//                    (short) (float) JY901.stcTime.ucSecond);
 
             struct tm t = {0};
 //            std::cout << "char :" << str_time<<" ";
@@ -282,18 +282,29 @@ int main(int argc, char *argv[]) {
             t.tm_mday = (short) JY901.stcTime.ucDay;
             t.tm_hour = (short) JY901.stcTime.ucHour;
             t.tm_min = (short) JY901.stcTime.ucMinute;
-            t.tm_sec = (int) (float) JY901.stcTime.ucSecond;
+            t.tm_sec = (short) (float) JY901.stcTime.ucSecond;
 
 
 //            std::cout << t.tm_hour<<":"<<t.tm_min<<":"<<t.tm_sec<<" ";
             double imu_time_now = timegm(&t);
             imu_time_now += (float) JY901.stcTime.usMiliSecond / 1000;
-            if (counter_times == 0) {
+
+
+            if (counter_times <2) {
 //                imu_start_time =
                 imu_start_time = imu_time_now;
+
                 start_time = now();
+//                if(imu_start_time>0)
+//                {
+//                    counter_times++;
+//                }else{
+//                    continue;
+//                }
                 counter_times++;
+
                 std::cout << "reset first start time " << std::endl;
+                continue;
             }
 
 
