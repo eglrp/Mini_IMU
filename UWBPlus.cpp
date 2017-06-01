@@ -179,8 +179,15 @@ int main(int argc, char *argv[])
 
     }
 
-    int out_file = open(std::string(save_file_dir+std::to_string(now())+"_uwbdata.txt").c_str(),
-                        O_WRONLY|O_CREAT);
+    double start_time = now();
+
+//    int out_file = open(std::string(save_file_dir+std::to_string(start_time)+"_uwbdata.txt").c_str(),
+//                        O_WRONLY|O_APPEND);
+//
+//    close(out_file);
+    std::ofstream out_file(std::string(save_file_dir
+                                       +std::to_string(start_time)+
+                                               "_uwbdata.txt"));
 
 
     std::cout << "start save data" << std::endl;
@@ -194,13 +201,25 @@ int main(int argc, char *argv[])
 
         if(data_size>0)
         {
-            write(out_file,buff,buff_size);
-            write(0,buff,buff_size);
+//
+//            int out_file = open(std::string(save_file_dir+std::to_string(start_time)+"_uwbdata.txt").c_str(),
+//                                O_WRONLY|O_APPEND);
+//            write(out_file,buff,buff_size);
+//
+//            write(0,buff,buff_size);
+//            close(out_file);
+            out_file<< buff;
+            std::cout << buff;
+            std::cout.flush();
+            out_file.flush();
+
+
         }else{
             usleep(10);
             if(!checkUSB(dev_str))
             {
-                close(out_file);
+//                close(out_file);
+                out_file.close();
                 close(fd);
                 return 0;
             }
