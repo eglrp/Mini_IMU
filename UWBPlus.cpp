@@ -146,5 +146,30 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 
 int main(int argc, char *argv[])
 {
+    std::string dev_str("/dev/ttyUSB0");
+    std::string save_file_dir("./");
+
+    if(argc == 3)
+    {
+        dev_str = std::string(argv[1]);
+        save_file_dir = std::string(argv[2]);
+    }
+
+    int fd = open(dev_str.c_str(),O_RDWR|O_NOCTTY);
+    if ( -1 == fd)
+    {
+        std::cout << " There is a Error when try to open the device :" << dev_str<< std::endl;
+        return 0;
+    }
+
+    set_opt(fd,115200,8,'N',1);
+
+    int buff_size(2040);
+    char buff[2040];
+    memset(buff,'\0',buff_size);
+
+
+
+
 
 }
