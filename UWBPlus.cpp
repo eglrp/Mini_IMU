@@ -146,7 +146,7 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 
 int main(int argc, char *argv[])
 {
-    std::string dev_str("/dev/ttyUSB0");
+    std::string dev_str("/dev/ttyUSB1");
     std::string save_file_dir("./");
 
     if(argc == 3)
@@ -168,6 +168,45 @@ int main(int argc, char *argv[])
     char buff[2040];
     memset(buff,'\0',buff_size);
 
+
+    while(true)
+    {
+        int data_size = read(fd,buff,buff_size);
+        if(data_size<buff_size-1)
+        {
+            break;
+        }
+
+    }
+
+    int out_file = open(std::string(save_file_dir+std::to_string(now())+"_uwbdata.txt").c_str(),
+                        O_WRONLY|O_CREAT);
+
+
+    std::cout << "start save data" << std::endl;
+
+    while(true)
+    {
+
+        memset(buff,'\0',buff_size);
+
+        int data_size = read(fd,buff,buff_size);
+
+        if(data_size>0)
+        {
+            write(out_file,buff,buff_size);
+            write(0,buff,buff_size);
+        }else{
+            usleep(10);
+            if(!checkUSB(dev_str))
+            {
+                close(out_file);
+                close(fd);
+                return 0;
+            }
+        }
+
+    }
 
 
 

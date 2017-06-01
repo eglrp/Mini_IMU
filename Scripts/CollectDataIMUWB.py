@@ -18,13 +18,13 @@ if __name__ == '__main__':
 
     os.mkdir(sub_dir_name)
 
-    IMU_dev = '/dev/ttyUSB1'
+    IMU_dev = '/dev/ttyUSB0'
     IMU_file = sub_dir_name+'/imu.txt'
 
-    UWB_dev = '/dev/ttyUSB0'
+    UWB_dev = '/dev/ttyUSB1'
     UWB_dir = sub_dir_name+'/'
 
-    os.system('../cmake-build-debug/IMUPlus {0} {1} & python ./UwbReader.py {2} {3}'.format(
+    os.system('../cmake-build-debug/IMUPlus {0} {1} & ../cmake-build-debug/UWBPlus {2} {3}'.format(
         IMU_dev,
         IMU_file,
         UWB_dev,
