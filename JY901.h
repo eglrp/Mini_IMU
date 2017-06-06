@@ -181,7 +181,7 @@ void CJY901::CopeSerialData(char ucData[], unsigned short usLength) {
         switch (chrTemp[1]) {
             case 0x50:
                 memcpy(&stcTime, &chrTemp[2], 8);
-//                isend = true;
+                isend = true;
 //                std::cout << "time ";// << std::endl;
                 break;
             case 0x51:
@@ -208,7 +208,7 @@ void CJY901::CopeSerialData(char ucData[], unsigned short usLength) {
             case 0x56:
                 memcpy(&stcPress, &chrTemp[2], 8);
 //                std::cout << " press "<< std::endl;
-                isend = true;
+//                isend = true;
                 break;
             case 0x57:
                 memcpy(&stcLonLat, &chrTemp[2], 8);
