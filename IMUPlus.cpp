@@ -286,6 +286,7 @@ int main(int argc, char *argv[]) {
 
 
 //            std::cout << t.tm_hour<<":"<<t.tm_min<<":"<<t.tm_sec<<" ";
+
             double imu_time_now = timegm(&t);
             imu_time_now += (float) JY901.stcTime.usMiliSecond / 1000;
 
@@ -295,12 +296,6 @@ int main(int argc, char *argv[]) {
                 imu_start_time = imu_time_now;
 
                 start_time = now();
-//                if(imu_start_time>0)
-//                {
-//                    counter_times++;
-//                }else{
-//                    continue;
-//                }
                 counter_times++;
 
                 std::cout << "reset first start time " << std::endl;

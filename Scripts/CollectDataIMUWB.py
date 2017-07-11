@@ -3,7 +3,6 @@
 
 
 import os
-import Scripts.UwbReader
 
 
 
