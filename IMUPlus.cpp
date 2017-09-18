@@ -179,7 +179,7 @@ void ReadThread(int fd, CharQueue<char> &cq, std::string dev_name) {
 
 
 int main(int argc, char *argv[]) {
-    std::string dev_str("/dev/ttyUSB1");
+    std::string dev_str("/dev/ttyUSB0");
     std::string save_file("test" + std::to_string(now()) + ".txt");
 
     if (argc == 3) {
@@ -224,15 +224,6 @@ int main(int argc, char *argv[]) {
 
 
     while (true) {
-//        while(cq.getSize()<1)
-//        {
-//            usleep(100);
-//        }
-
-//        if(!checkUSB(dev_str))
-//        {
-//            return 0;
-//        }
 
         int size = 1;
         if (cq.ReadBuf(chrBuffer, size)) {
@@ -251,32 +242,23 @@ int main(int argc, char *argv[]) {
         if (usLength > 0) {
             JY901.CopeSerialData(chrBuffer, usLength);
         }
-//        Sleep(100);
-//        usleep(1000);
 
         if (JY901.getisend())//|| last_milisecond!=(float)JY901.stcTime.usMiliSecond/1000)
         {
             if (std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.005) > 0.0001 &&
                 std::fabs(std::fabs((float) JY901.stcTime.usMiliSecond / 1000 - last_milisecond) - 0.995) > 0.0001) {
-//               std::cout <<  (float)JY901.stcTime.usMiliSecond/1000-last_milisecond ;//<< std::endl;
                 error_times++;
                 if (error_times % 1 == 0) {
                     std::cout << error_times << "average time :" << (now() - start_time) / double(error_times)
                               << "cq size :" << cq.getSize() << " "
                               << std::endl;
                 }
+                continue;
 
             }
-//            char str_time[100] = {0};
-//            sprintf(str_time, "20%d-%02d-%02d %02d:%02d:%02d\n", (short) JY901.stcTime.ucYear,
-//                    (short) JY901.stcTime.ucMonth,
-//                    (short) JY901.stcTime.ucDay, (short) JY901.stcTime.ucHour, (short) JY901.stcTime.ucMinute,
-//                    (short) (float) JY901.stcTime.ucSecond);
 
             struct tm t = {0};
-//            std::cout << "char :" << str_time<<" ";
 
-//            strftime(str_time, 29,"%Y-%m-%d %H:%M:%S\n", &t);
             t.tm_year = (short) JY901.stcTime.ucYear;
             t.tm_mon = (short) JY901.stcTime.ucMonth;
             t.tm_mday = (short) JY901.stcTime.ucDay;
@@ -291,7 +273,7 @@ int main(int argc, char *argv[]) {
             imu_time_now += (float) JY901.stcTime.usMiliSecond / 1000;
 
 
-            if (counter_times <2) {
+            if (counter_times < 2) {
 //                imu_start_time =
                 imu_start_time = imu_time_now;
 
@@ -300,20 +282,22 @@ int main(int argc, char *argv[]) {
 
                 std::cout << "reset first start time " << std::endl;
                 continue;
+            } else {
+//                out_file << imu_time_now - imu_start_time + start_time << "," <<
+                out_file << now()<< "," <<
+                         (float) JY901.stcAcc.a[0] / 32768 * 16 << "," << (float) JY901.stcAcc.a[1] / 32768 * 16 << ","
+                         <<
+                         (float) JY901.stcAcc.a[2] / 32768 * 16 << "," <<
+                         (float) JY901.stcGyro.w[0] / 32768 * 2000 << "," << (float) JY901.stcGyro.w[1] / 32768 * 2000
+                         << "," <<
+                         (float) JY901.stcGyro.w[2] / 32768 * 2000 << "," <<
+                         JY901.stcMag.h[0] << "," << JY901.stcMag.h[1] << "," << JY901.stcMag.h[2]
+                         << "," << JY901.stcPress.lPressure;
+                out_file << std::endl;
+
+                last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
             }
 
-
-            out_file << imu_time_now - imu_start_time + start_time << "," <<
-                     (float) JY901.stcAcc.a[0] / 32768 * 16 << "," << (float) JY901.stcAcc.a[1] / 32768 * 16 << "," <<
-                     (float) JY901.stcAcc.a[2] / 32768 * 16 << "," <<
-                     (float) JY901.stcGyro.w[0] / 32768 * 2000 << "," << (float) JY901.stcGyro.w[1] / 32768 * 2000
-                     << "," <<
-                     (float) JY901.stcGyro.w[2] / 32768 * 2000 << "," <<
-                     JY901.stcMag.h[0] << "," << JY901.stcMag.h[1] << "," << JY901.stcMag.h[2]
-                     << "," << JY901.stcPress.lPressure;
-            out_file << std::endl;
-
-            last_milisecond = (float) JY901.stcTime.usMiliSecond / 1000;
 
         }
 
