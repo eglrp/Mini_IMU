@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.6)
 project(Mini_IMU)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4 -lpthread ")
-set(CMAKE_BUILD_TYPE RELEASE)
+#set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -lpthread ")
+#set(CMAKE_BUILD_TYPE RELEASE)
 
 #find_package(Boost REQUIRED COMPONENTS system
 #        )
@@ -21,6 +21,9 @@ set(CMAKE_BUILD_TYPE RELEASE)
 include_directories(
         ./include
 )
+#target_link_libraries(
+#        thread
+#)
 
 set(SOURCE_FILES main.cpp  JY901.h)
 add_executable(Mini_IMU ${SOURCE_FILES})
@@ -28,6 +31,7 @@ add_executable(Mini_IMU ${SOURCE_FILES})
 
 
 add_executable(IMUPlus IMUPlus.cpp include/CharQueue.cpp include/CharQueue.h include/IMUReader.cpp include/IMUReader.h)
+target_link_libraries(IMUPlus pthread)
 
 add_executable(IMUWB IMUWB.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)
 add_executable(UWBPlus UWBPlus.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)

@@ -164,8 +164,8 @@ int main(int argc, char *argv[])
 
     set_opt(fd,115200,8,'N',1);
 
-    int buff_size(2040);
-    char buff[2040];
+    int buff_size(22222);
+    char buff[buff_size];
     memset(buff,'\0',buff_size);
 
 
@@ -191,6 +191,7 @@ int main(int argc, char *argv[])
 
 
     std::cout << "start save data" << std::endl;
+    int uwb_counter_times = 0;
 
     while(true)
     {
@@ -216,10 +217,18 @@ int main(int argc, char *argv[])
         }else{
 //            usleep(10);
 //            std::cout.flush();
-            out_file.flush();
+            if(uwb_counter_times<10)
+            {
+                uwb_counter_times++;
+            }else{
+
+                out_file.flush();
+                uwb_counter_times=0;
+            }
             if(!checkUSB(dev_str))
             {
 
+                out_file.flush();
 //                close(out_file);
                 out_file.close();
                 close(fd);
