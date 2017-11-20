@@ -53,6 +53,8 @@
 
 #include <mutex>
 #include <thread>
+#include <regex>
+#include <string>
 
 
 #include <chrono>
@@ -191,27 +193,51 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 
 
 inline bool ProcessAndSaveThread(char *buf,
-                          int buf_size,
-                          const std::ofstream &out_file)
-{
+                                 int buf_size,
+                                 const std::ofstream &out_file) {
+
+    int tag_offset[4] = {0, 4, 7, 9};
 
     auto dis_array = new double[10];
+    int begin_line(0), end_line(0);
+    std::string buf_str;
+    buf_str.resize(buf_size);
+    memcpy(const_cast<char*>(buf_str.c_str()),buf,buf_size);
 
-    std::cout <<"|"
-              << buf[buf_size-1]
-              << "|"
-              << std::endl;
+
+//    std::cout << " inside function :\n "
+//              << buf_str
+//            << "-------------------\n";
+//    std::cout.flush();
+
+    std::regex l_reg("(.{0,})A1(.*)(T\\d{2})(.*)([\\n]})");
+
+    const std::sregex_iterator end;
+    for(std::sregex_iterator iter((buf_str.cbegin()),(buf_str.cend()),l_reg);
+            iter!= end;++iter)
+    {
+        std::cout << "this line: "
+                  << (*iter)[0]
+                  << std::endl;
+    }
+
+
+
+
+
+//    std::cout << "|"
+//              << buf[buf_size - 1]
+//              << "|"
+//              << std::endl;
     return true;
 }
 
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     std::string dev_str("/dev/ttyUSB0");
     std::string save_file("./testATEUWB.txt");
 
-    if(argc ==3)
-    {
+    if (argc == 3) {
         dev_str = std::string(argv[1]);
         save_file = std::string(argv[2]);
     }
@@ -232,29 +258,26 @@ int main(int argc, char *argv[])
     set_opt(fd, 115200, 8, 'N', 1);
 
 
-
     double last_time = 0.0;
     double now_time = 0.0;
     int readed_counter = 0;
 
-    while(true){
+    while (true) {
 
-        memset(chrBuffer,0,4000);
-        int len = read(fd,chrBuffer,1000);
+        memset(chrBuffer, 0, 4000);
+        int len = read(fd, chrBuffer, 1000);
         now_time = now();
-        readed_counter ++;
-        if(!checkUSB(dev_str))
-        {
+        readed_counter++;
+        if (!checkUSB(dev_str)) {
             std::cout << dev_str << " disconnected" << std::endl;
             out_file.close();
+            delete [] chrBuffer;
             return 0;
         }
-        if(len>0)
-        {
-            if(last_time>10.0)
-            {
+        if (len > 0) {
+            if (last_time > 10.0) {
 
-                std::cout << now_time- last_time
+                std::cout << now_time - last_time
                           << "  "
                           << readed_counter
                           << "\n";
@@ -262,15 +285,14 @@ int main(int argc, char *argv[])
             }
 
             last_time = now_time;
-            readed_counter =0;
+            readed_counter = 0;
 
             std::cout << chrBuffer
-            << "\n ----------------------"
-            << std::endl;
+                      << "\n ----------------------"
+                      << std::endl;
 
 
-            ProcessAndSaveThread(chrBuffer,len,out_file);
-
+            ProcessAndSaveThread(chrBuffer, len, out_file);
 
 
         }
