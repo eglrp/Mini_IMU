@@ -23,8 +23,47 @@
 //
 // Created by steve on 17-11-20.
 //
+#include <iostream>
+#include     <stdio.h>      /*标准输入输出定义*/
+#include     <stdlib.h>     /*标准函数库定义*/
+#include     <unistd.h>     /*Unix 标准函数定义*/
+#include     <sys/types.h>
+#include     <sys/stat.h>
+
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include <unistd.h>
+#include <termios.h>
+#include <stdlib.h>
+#include "time.h"
+#include "stdio.h"
+#include "JY901.h"
+
+//#include <boost/asio.hpp>
+//#include <boost/bind.hpp>
+
+#include <fstream>
+#include <cmath>
+
+#include <mutex>
+#include <thread>
 
 
+#include <chrono>
+
+#include "CharQueue.h"
+
+/**
+ * Check if usb device is ok
+ * @param dev_name  '/dev/ttyUSB0'
+ * @return
+ */
 bool checkUSB(std::string dev_name) {
     FILE *stream;
     char out_res[1000];
@@ -40,6 +79,10 @@ bool checkUSB(std::string dev_name) {
     }
 }
 
+/**
+ *
+ * @return unix time, unit s(double)
+ */
 double now() {
     auto tt = std::chrono::system_clock::now();
     auto t_nanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(tt.time_since_epoch());
@@ -51,6 +94,15 @@ double now() {
 unsigned char ucComNo[2] = {0, 0};
 bool StopExeFlag = false;
 
+/**
+ *  set parameters for serial port.
+ * @param fd
+ * @param nSpeed
+ * @param nBits
+ * @param nEvent
+ * @param nStop
+ * @return
+ */
 int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
     struct termios newtio, oldtio;
     if (tcgetattr(fd, &oldtio) != 0) {
@@ -133,6 +185,26 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
     return 0;
 }
 
+////// GLOBAL VALUE .....
+//void ProcessAndSaveThread(int )
+
+
+
+inline bool ProcessAndSaveThread(char *buf,
+                          int buf_size,
+                          const std::ofstream &out_file)
+{
+
+    auto dis_array = new double[10];
+
+    std::cout <<"|"
+              << buf[buf_size-1]
+              << "|"
+              << std::endl;
+    return true;
+}
+
+
 int main(int argc, char *argv[])
 {
     std::string dev_str("/dev/ttyUSB0");
@@ -161,13 +233,45 @@ int main(int argc, char *argv[])
 
 
 
+    double last_time = 0.0;
+    double now_time = 0.0;
+    int readed_counter = 0;
 
     while(true){
 
         memset(chrBuffer,0,4000);
         int len = read(fd,chrBuffer,1000);
+        now_time = now();
+        readed_counter ++;
+        if(!checkUSB(dev_str))
+        {
+            std::cout << dev_str << " disconnected" << std::endl;
+            out_file.close();
+            return 0;
+        }
         if(len>0)
         {
+            if(last_time>10.0)
+            {
+
+                std::cout << now_time- last_time
+                          << "  "
+                          << readed_counter
+                          << "\n";
+
+            }
+
+            last_time = now_time;
+            readed_counter =0;
+
+            std::cout << chrBuffer
+            << "\n ----------------------"
+            << std::endl;
+
+
+            ProcessAndSaveThread(chrBuffer,len,out_file);
+
+
 
         }
 
