@@ -202,24 +202,26 @@ inline bool ProcessAndSaveThread(char *buf,
     int begin_line(0), end_line(0);
     std::string buf_str;
     buf_str.resize(buf_size);
-    memcpy(const_cast<char*>(buf_str.c_str()),buf,buf_size);
+    memcpy(const_cast<char *>(buf_str.c_str()), buf, buf_size);
 
 
 //    std::cout << " inside function :\n "
 //              << buf_str
 //            << "-------------------\n";
 //    std::cout.flush();
+    std::regex l_reg(".{0,}(A1).*[\\n]{1}");
 
-    std::regex l_reg("(.{0,})A1(.*)(T\\d{2})(.*)([\\n]})");
 
-    const std::sregex_iterator end;
-    for(std::sregex_iterator iter((buf_str.cbegin()),(buf_str.cend()),l_reg);
-            iter!= end;++iter)
-    {
-        std::cout << "this line: "
-                  << (*iter)[0]
+    std::smatch m;
+    std::regex_match(buf_str, m, l_reg);
+
+    for (int i(0); i < m.size(); ++i) {
+        std::cout << " i: "
+                  << i
+                  << m[i]
                   << std::endl;
     }
+
 
 
 
@@ -271,7 +273,7 @@ int main(int argc, char *argv[]) {
         if (!checkUSB(dev_str)) {
             std::cout << dev_str << " disconnected" << std::endl;
             out_file.close();
-            delete [] chrBuffer;
+            delete[] chrBuffer;
             return 0;
         }
         if (len > 0) {
