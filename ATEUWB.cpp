@@ -190,17 +190,16 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 ////// GLOBAL VALUE .....
 //void ProcessAndSaveThread(int )
 
+std::ofstream out_file;
 
-
-inline bool ProcessAndSaveThread(char *buf,
-                                 int buf_size,
-                                 const std::ofstream &out_file) {
+void ProcessAndSaveThread(char *buf,
+                          int buf_size) {
 
     int tag_offset[4] = {0, 4, 7, 9};
 
     auto *dis_array = new double[10];
     std::string buf_str;
-    buf_str.resize(buf_size);
+    buf_str.resize(buf_size + 1);
     memcpy(const_cast<char *>(buf_str.c_str()), buf, buf_size);
 
 
@@ -228,17 +227,21 @@ inline bool ProcessAndSaveThread(char *buf,
     }
 
 
+    if (out_file.is_open()) {
+        for (int i(0); i < 10; i++) {
+            out_file << dis_array[i];
+            if (i < 9) {
+                out_file << ",";
+            } else {
+                out_file << std::endl;
+            }
+        }
+
+    } else {
+        std::cerr << "Error out file not openned!" << std::endl;
+    }
 
 
-
-
-
-
-//    std::cout << "|"
-//              << buf[buf_size - 1]
-//              << "|"
-//              << std::endl;
-    return true;
 }
 
 
@@ -258,7 +261,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    std::ofstream out_file(save_file);
+    out_file.open(save_file);
     out_file.precision(13);
 
 
@@ -270,11 +273,12 @@ int main(int argc, char *argv[]) {
     double last_time = 0.0;
     double now_time = 0.0;
     int readed_counter = 0;
+    int buf_offset = 0;
 
     while (true) {
 
         memset(chrBuffer, 0, 4000);
-        int len = read(fd, chrBuffer, 4000);
+        int len = read(fd, (chrBuffer), 4000);
         now_time = now();
         readed_counter++;
         if (!checkUSB(dev_str)) {
@@ -300,8 +304,11 @@ int main(int argc, char *argv[]) {
                       << chrBuffer
                       << std::endl;
 
+            std::thread t(&ProcessAndSaveThread, chrBuffer, len);
+            t.detach();
+            usleep(500000);
 
-            ProcessAndSaveThread(chrBuffer, len, out_file);
+//            ProcessAndSaveThread(chrBuffer, len, out_file);
 
             std::cout << "\n ============" << std::endl;
 
