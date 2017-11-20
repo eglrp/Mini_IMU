@@ -222,7 +222,7 @@ inline void ProcessAndSaveThread(char *buf,
 
         std::string current_line(iter->str());
 
-        std::regex base_id("T\\d{2} M00 \\d{5}");
+        std::regex base_id("T\\d{2} ");
 
 
     }
