@@ -190,10 +190,11 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 ////// GLOBAL VALUE .....
 //void ProcessAndSaveThread(int )
 
-std::ofstream out_file;
+//std::ofstream out_file;
 
-void ProcessAndSaveThread(char *buf,
-                          int buf_size) {
+inline void ProcessAndSaveThread(char *buf,
+                          int buf_size,
+                          std::ofstream &out_file) {
 
     int tag_offset[4] = {0, 4, 7, 9};
 
@@ -261,7 +262,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    out_file.open(save_file);
+    std::ofstream out_file(save_file);
     out_file.precision(13);
 
 
@@ -284,7 +285,7 @@ int main(int argc, char *argv[]) {
         if (!checkUSB(dev_str)) {
             std::cout << dev_str << " disconnected" << std::endl;
             out_file.close();
-            delete[] chrBuffer;
+//            delete[] chrBuffer;
             return 0;
         }
 
@@ -307,8 +308,8 @@ int main(int argc, char *argv[]) {
 
 
         if (len > 1 &&
-                chrBuffer[buf_offset + len-1] == '\n' &&
-                chrBuffer[buf_offset+len-2]=='\r') {
+            chrBuffer[buf_offset + len - 1] == '\n' &&
+            chrBuffer[buf_offset + len - 2] == '\r') {
             if (last_time > 10.0) {
 
                 std::cout << now_time - last_time
@@ -325,11 +326,11 @@ int main(int argc, char *argv[]) {
                       << chrBuffer
                       << std::endl;
 
-            std::thread t(&ProcessAndSaveThread, chrBuffer, len+buf_offset);
-            t.detach();
-            usleep(5000);
+//            std::thread t(&ProcessAndSaveThread, chrBuffer, len+buf_offset);
+//            t.detach();
+//            usleep(5000);
 
-//            ProcessAndSaveThread(chrBuffer, len, out_file);
+            ProcessAndSaveThread(chrBuffer, len + buf_offset, out_file);
 
             std::cout << "\n ============" << std::endl;
             buf_offset = 0;
