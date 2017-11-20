@@ -198,8 +198,7 @@ inline bool ProcessAndSaveThread(char *buf,
 
     int tag_offset[4] = {0, 4, 7, 9};
 
-    auto dis_array = new double[10];
-    int begin_line(0), end_line(0);
+    auto *dis_array = new double[10];
     std::string buf_str;
     buf_str.resize(buf_size);
     memcpy(const_cast<char *>(buf_str.c_str()), buf, buf_size);
@@ -208,6 +207,9 @@ inline bool ProcessAndSaveThread(char *buf,
 //    std::cout << " insid//e function :\n "
 //              << "|" << buf_str << "|\n";
 //    std::cout.flush();
+
+
+    // check one line
     std::regex l_reg(".{0,}(A1).*[\\r|\\n|\\r\\n]");
 
     const std::sregex_iterator end;
@@ -217,6 +219,12 @@ inline bool ProcessAndSaveThread(char *buf,
          iter != end;
          ++iter) {
         std::cout << "iter :" << (*iter)[0] << std::endl;
+
+        std::string current_line(iter->str());
+
+        std::regex base_id("T\\d{2} M00 \\d{5}");
+
+
     }
 
 
@@ -266,7 +274,7 @@ int main(int argc, char *argv[]) {
     while (true) {
 
         memset(chrBuffer, 0, 4000);
-        int len = read(fd, chrBuffer, 1000);
+        int len = read(fd, chrBuffer, 4000);
         now_time = now();
         readed_counter++;
         if (!checkUSB(dev_str)) {
@@ -288,14 +296,14 @@ int main(int argc, char *argv[]) {
             last_time = now_time;
             readed_counter = 0;
 
-            std::cout  << "\n ----------------------"
-                    << chrBuffer
+            std::cout << "\n ----------------------\n"
+                      << chrBuffer
                       << std::endl;
 
 
             ProcessAndSaveThread(chrBuffer, len, out_file);
 
-            std::cout << "\n ============"<<std::endl;
+            std::cout << "\n ============" << std::endl;
 
         }
 
