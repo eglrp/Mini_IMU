@@ -205,22 +205,21 @@ inline bool ProcessAndSaveThread(char *buf,
     memcpy(const_cast<char *>(buf_str.c_str()), buf, buf_size);
 
 
-//    std::cout << " inside function :\n "
-//              << buf_str
-//            << "-------------------\n";
-//    std::cout.flush();
-    std::regex l_reg(".{0,}(A1).*[\\n]{1}");
+    std::cout << " inside function :\n "
+              << "|" << buf_str << "|\n";
+    std::cout.flush();
+    std::regex l_reg(".{0,}(A1).*[\\r|\\n|\\r\\n]");
 
-
-    std::smatch m;
-    std::regex_match(buf_str, m, l_reg);
-
-    for (int i(0); i < m.size(); ++i) {
-        std::cout << " i: "
-                  << i
-                  << m[i]
-                  << std::endl;
+    const std::sregex_iterator end;
+    for (std::sregex_iterator iter(buf_str.cbegin(),
+                                   buf_str.cend(),
+                                   l_reg);
+         iter != end;
+         ++iter) {
+        std::cout << "iter :" << (*iter)[0] << std::endl;
     }
+
+
 
 
 
