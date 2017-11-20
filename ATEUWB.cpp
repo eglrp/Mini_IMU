@@ -205,9 +205,9 @@ inline bool ProcessAndSaveThread(char *buf,
     memcpy(const_cast<char *>(buf_str.c_str()), buf, buf_size);
 
 
-    std::cout << " inside function :\n "
-              << "|" << buf_str << "|\n";
-    std::cout.flush();
+//    std::cout << " insid//e function :\n "
+//              << "|" << buf_str << "|\n";
+//    std::cout.flush();
     std::regex l_reg(".{0,}(A1).*[\\r|\\n|\\r\\n]");
 
     const std::sregex_iterator end;
@@ -288,13 +288,14 @@ int main(int argc, char *argv[]) {
             last_time = now_time;
             readed_counter = 0;
 
-            std::cout << chrBuffer
-                      << "\n ----------------------"
+            std::cout  << "\n ----------------------"
+                    << chrBuffer
                       << std::endl;
 
 
             ProcessAndSaveThread(chrBuffer, len, out_file);
 
+            std::cout << "\n ============"<<std::endl;
 
         }
 
