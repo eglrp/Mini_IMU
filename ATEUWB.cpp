@@ -193,8 +193,9 @@ int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
 //std::ofstream out_file;
 
 inline void ProcessAndSaveThread(char *buf,
-                          int buf_size,
-                          std::ofstream &out_file) {
+                                 int buf_size,
+                                 std::ofstream &out_file,
+                                 double time_stamp) {
 
     int tag_offset[4] = {0, 4, 7, 9};
 
@@ -218,17 +219,53 @@ inline void ProcessAndSaveThread(char *buf,
                                    l_reg);
          iter != end;
          ++iter) {
-        std::cout << "iter :" << (*iter)[0] << std::endl;
+//        std::cout << "iter :" << (*iter)[0] << std::endl;
 
         std::string current_line(iter->str());
 
-        std::regex base_id("T\\d{2} ");
+        std::regex base_reg("T\\d{2} ");
+        for (std::sregex_iterator ii(current_line.cbegin(),
+                                     current_line.cend(), base_reg);
+             ii != end;
+             ++ii) {
+            std::string tmp_str(ii->str());
+            int base_tag_id = std::stoi(tmp_str.substr(1, 2)) - 1;
+//            std::cout << "base id : "
+//                      << base_tag_id
+//                      << std::endl;
+
+            std::regex dis_reg("[M|A]\\d{2} \\d{5}");
+            for (std::sregex_iterator it_flag(
+                    current_line.cbegin(),
+                    current_line.cend(),
+                    dis_reg
+            );
+                 it_flag != end; ++it_flag) {
+
+                std::string dis_str(it_flag->str());
+                int target_id = 0;
+
+                if (dis_str[0] == 'M') {
+                    target_id = 0;
+                } else {
+                    target_id = std::stoi(dis_str.substr(1, 2)) - 1;
+                }
+
+                dis_array[tag_offset[base_tag_id] + target_id] = (std::stod(
+                        dis_str.substr(3)
+                )) / 100.0;
+
+            }
+
+
+        }
 
 
     }
 
 
     if (out_file.is_open()) {
+        out_file << time_stamp << ",";
         for (int i(0); i < 10; i++) {
             out_file << dis_array[i];
             if (i < 9) {
@@ -312,10 +349,10 @@ int main(int argc, char *argv[]) {
             chrBuffer[buf_offset + len - 2] == '\r') {
             if (last_time > 10.0) {
 
-                std::cout << now_time - last_time
-                          << "  "
-                          << readed_counter
-                          << "\n";
+//                std::cout << now_time - last_time
+//                          << "  "
+//                          << readed_counter
+//                          << "\n";
 
             }
 
@@ -330,7 +367,7 @@ int main(int argc, char *argv[]) {
 //            t.detach();
 //            usleep(5000);
 
-            ProcessAndSaveThread(chrBuffer, len + buf_offset, out_file);
+            ProcessAndSaveThread(chrBuffer, len + buf_offset, out_file, now_time);
 
             std::cout << "\n ============" << std::endl;
             buf_offset = 0;
