@@ -3,7 +3,7 @@ import os
 
 
 if __name__ == '__main__':
-    base_dir = './II/'
+    base_dir = '/home/steve/Code/Mini_IMU/Scripts/II/'
     a = 10
     for dir in os.listdir(base_dir):
         if float(dir)>=a:
