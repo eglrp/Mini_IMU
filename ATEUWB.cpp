@@ -209,7 +209,7 @@ void ProcessAndSaveThread(char *buf,
 
 
     // check one line
-    std::regex l_reg(".{0,}(A1).*[\\r|\\n|\\r\\n]");
+    std::regex l_reg(".{0,}(A1).*[\\r\\n]");
 
     const std::sregex_iterator end;
     for (std::sregex_iterator iter(buf_str.cbegin(),
@@ -266,7 +266,6 @@ int main(int argc, char *argv[]) {
 
 
     char chrBuffer[4000];
-    unsigned short usLength = 0, usCnt = 0;
     set_opt(fd, 115200, 8, 'N', 1);
 
 
@@ -277,17 +276,39 @@ int main(int argc, char *argv[]) {
 
     while (true) {
 
-        memset(chrBuffer, 0, 4000);
-        int len = read(fd, (chrBuffer), 4000);
+
+        int len = read(fd, (chrBuffer + buf_offset), 4000);
         now_time = now();
         readed_counter++;
+
         if (!checkUSB(dev_str)) {
             std::cout << dev_str << " disconnected" << std::endl;
             out_file.close();
             delete[] chrBuffer;
             return 0;
         }
-        if (len > 0) {
+
+//        std::cout <<"*****"<<std::endl;
+//        for(int i(0);i<4;++i)
+//        {
+//            std::cout <<" i: " << i << " " ;
+//            if(chrBuffer[buf_offset+len-i]=='\n')
+//            {
+//                std::cout << "\\n"<<std::endl;
+//            }else if(chrBuffer[buf_offset+len-i]=='\r')
+//            {
+//                std::cout << "\\r"<<std::endl;
+//            }else{
+//                std::cout << std::endl;
+//            }
+//        }
+//
+//        std::cout <<"*****"<<std::endl;
+
+
+        if (len > 1 &&
+                chrBuffer[buf_offset + len-1] == '\n' &&
+                chrBuffer[buf_offset+len-2]=='\r') {
             if (last_time > 10.0) {
 
                 std::cout << now_time - last_time
@@ -304,14 +325,17 @@ int main(int argc, char *argv[]) {
                       << chrBuffer
                       << std::endl;
 
-            std::thread t(&ProcessAndSaveThread, chrBuffer, len);
+            std::thread t(&ProcessAndSaveThread, chrBuffer, len+buf_offset);
             t.detach();
-            usleep(500000);
+            usleep(5000);
 
 //            ProcessAndSaveThread(chrBuffer, len, out_file);
 
             std::cout << "\n ============" << std::endl;
-
+            buf_offset = 0;
+            memset(chrBuffer, 0, 4000);
+        } else {
+            buf_offset += len;
         }
 
     }
