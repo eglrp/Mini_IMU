@@ -22,7 +22,7 @@ include_directories(
         ./include
 )
 
-set(SOURCE_FILES main.cpp  JY901.h)
+set(SOURCE_FILES main.cpp JY901.h)
 add_executable(Mini_IMU ${SOURCE_FILES})
 #target_link_libraries(Mini_IMU ${Boost_LIBRARIES})
 
