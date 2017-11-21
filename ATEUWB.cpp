@@ -263,7 +263,7 @@ inline void ProcessAndSaveThread(char *buf,
 
     }
 
-
+//////
     if (out_file.is_open()) {
         out_file << time_stamp << ",";
         for (int i(0); i < 10; i++) {
