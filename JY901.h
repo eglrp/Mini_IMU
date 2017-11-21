@@ -4,6 +4,7 @@
 #include "string.h"
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #define SAVE            0x00
 #define CALSW        0x01
@@ -133,7 +134,7 @@ public:
     struct SPress stcPress;
     struct SLonLat stcLonLat;
     struct SGPSV stcGPSV;
-    bool isend = false;
+    std::atomic<bool> isend ;
     unsigned char global_buff[2000];
     int last_len = -1;
 
@@ -143,6 +144,7 @@ public:
 
     CJY901() {
         std::cout << "after initial jy901" << std::endl;
+        isend=false;
     }
 
     void CopeSerialData(char ucData[], unsigned short usLength);
