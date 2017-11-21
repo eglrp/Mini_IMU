@@ -13,6 +13,7 @@ if __name__ == '__main__':
 
     os.mkdir(sub_dir_name)
 
+
     IMU_dev = '/dev/ttyUSB0'
     IMU_file = sub_dir_name+'/imu.txt'
 
