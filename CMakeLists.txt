@@ -32,6 +32,7 @@ target_link_libraries(IMUPlus pthread)
 
 add_executable(IMUWB IMUWB.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)
 add_executable(UWBPlus UWBPlus.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)
+add_executable(NewUWBPlus NewUWBPlus.cpp include/UWBReader.cpp include/UWBReader.h include/IMUReader.cpp include/IMUReader.h)
 
 
 add_executable(ATEUWB ATEUWB.cpp)
