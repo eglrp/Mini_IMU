@@ -7,7 +7,7 @@ import os
 
 
 if __name__ == '__main__':
-    base_dir = './IMUWB/'
+    base_dir = './NewIU/'
     a = 10
     for dir in os.listdir(base_dir):
         if float(dir)>=a:
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     UWB_dev = '/dev/ttyUSB1'
     UWB_dir = sub_dir_name+'/'
 
-    os.system('../cmake-build-debug/IMUPlus {0} {1} & ../cmake-build-debug/UWBPlus {2} {3}'.format(
+    os.system('../cmake-build-debug/IMUPlus {0} {1} & ../cmake-build-debug/NewUWBPlus {2} {3}'.format(
         IMU_dev,
         IMU_file,
         UWB_dev,
