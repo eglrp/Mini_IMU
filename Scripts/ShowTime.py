@@ -7,7 +7,7 @@ import os
 
 
 if __name__ == '__main__':
-    dir_name= '/home/steve/Code/Mini_IMU/Scripts/NewIU/10/'
+    dir_name= '/home/steve/Code/Mini_IMU/Scripts/NewIU/13/'
     imu1_data = np.loadtxt(dir_name+'imu.txt',delimiter=',')
     imu2_data = np.loadtxt(dir_name+'imu2.txt',delimiter=',')
 
