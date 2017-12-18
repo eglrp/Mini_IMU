@@ -20,12 +20,17 @@ if __name__ == '__main__':
     IMU_dev = '/dev/ttyUSB0'
     IMU_file = sub_dir_name+'/imu.txt'
 
-    UWB_dev = '/dev/ttyUSB1'
+    IMU2_dev = '/dev/ttyUSB1'
+    IMU2_file = sub_dir_name+'/imu2.txt'
+
+    UWB_dev = '/dev/ttyUSB2'
     UWB_dir = sub_dir_name+'/'
 
-    os.system('../cmake-build-debug/IMUPlus {0} {1} & ../cmake-build-debug/NewUWBPlus {2} {3}'.format(
+    os.system('../cmake-build-debug/IMUPlus {0} {1} & ../cmake-build-debug/IMUPlus {2} {3} & ../cmake-build-debug/NewUWBPlus {4} {5}'.format(
         IMU_dev,
         IMU_file,
+        IMU2_dev,
+        IMU2_file,
         UWB_dev,
         UWB_dir
     ))
